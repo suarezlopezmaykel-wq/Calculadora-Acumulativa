@@ -2,18 +2,22 @@ package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,6 +36,7 @@ fun TopCalculatorPanel(
     onShortDeleteClick: () -> Unit,
     onResetAllClick: () -> Unit,
     onSaveResultClick: (String) -> Unit,
+    onExitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Colors
@@ -42,6 +47,7 @@ fun TopCalculatorPanel(
     val buttonBorder = Color(0xFF0F172A)    // Dark borders
     val saveBtnBg = Color(0xFF1D4ED8)       // Darker blue for Save
     val equalsBtnBg = Color(0xFF0284C7)     // Vibrant blue for Equals
+    val exitBtnBg = Color(0xFFDC2626)       // Red exit button
 
     Column(
         modifier = modifier
@@ -49,6 +55,40 @@ fun TopCalculatorPanel(
             .border(2.dp, Color(0xFF0D1B2A), RoundedCornerShape(12.dp))
             .padding(10.dp)
     ) {
+        // Top Header Row with Panel Label & Red Exit Button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Calculadora Individual",
+                color = Color(0xFFE0F2FE),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // Red Exit Button
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(exitBtnBg)
+                    .border(2.dp, Color(0xFF0F172A), RoundedCornerShape(6.dp))
+                    .clickable { onExitClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "✕",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
         // Display Area
         Column(
             modifier = Modifier

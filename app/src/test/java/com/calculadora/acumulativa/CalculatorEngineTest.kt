@@ -207,4 +207,53 @@ class CalculatorEngineTest {
         viewModel.onSaveTopResultToBottom("")
         assertEquals("10", viewModel.bottomState.value.expression)
     }
+
+    // Test 14: Botón rojo de salida borra todos los estados e invoca cierre
+    @Test
+    fun test14_RedExitButtonResetsAllStatesAndExecutesCallback() {
+        // Populate top calculator
+        viewModel.onTopDigitClick("8")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("2")
+        viewModel.onTopEqualsClick()
+
+        // Populate bottom accumulator
+        viewModel.onSaveTopResultToBottom("10")
+        viewModel.onBottomOperatorClick("×")
+        viewModel.onSaveTopResultToBottom("5")
+        viewModel.onBottomEqualsClick()
+
+        // Verify active calculation states before exit
+        assertEquals("50", viewModel.bottomState.value.fixedTotal)
+        assertTrue(viewModel.bottomState.value.isFixed)
+
+        var callbackCalled = false
+        viewModel.onRedExitClick { callbackCalled = true }
+
+        // Assert callback invoked and states completely reset
+        assertTrue(callbackCalled)
+        assertEquals("", viewModel.topState.value.expression)
+        assertNull(viewModel.topState.value.fixedResult)
+        assertFalse(viewModel.topState.value.isFixed)
+
+        assertEquals("", viewModel.bottomState.value.expression)
+        assertNull(viewModel.bottomState.value.fixedTotal)
+        assertFalse(viewModel.bottomState.value.isFixed)
+        assertNull(viewModel.bottomState.value.suggestedTotal)
+    }
+
+    // Test 15: Comprobar preservación del funcionamiento del botón C
+    @Test
+    fun test15_CButtonBehaviorPreserved() {
+        viewModel.onTopDigitClick("9")
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopShortDeleteClick()
+        assertEquals("9", viewModel.topState.value.expression)
+
+        viewModel.onSaveTopResultToBottom("9")
+        viewModel.onTopDigitClick("4")
+        viewModel.onResetAll() // 2 sec hold logic
+        assertEquals("", viewModel.topState.value.expression)
+        assertEquals("", viewModel.bottomState.value.expression)
+    }
 }

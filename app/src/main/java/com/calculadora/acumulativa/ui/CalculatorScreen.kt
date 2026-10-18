@@ -1,5 +1,6 @@
 package com.calculadora.acumulativa.ui
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.calculadora.acumulativa.ui.components.BottomCalculatorPanel
 import com.calculadora.acumulativa.ui.components.TopCalculatorPanel
@@ -29,8 +31,16 @@ fun CalculatorScreen(
 ) {
     val topState by viewModel.topState.collectAsState()
     val bottomState by viewModel.bottomState.collectAsState()
+    val context = LocalContext.current
 
     val appBackground = Color(0xFF0D1B2A)
+
+    val handleExit = {
+        viewModel.onRedExitClick {
+            val activity = context as? Activity
+            activity?.finishAndRemoveTask()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -61,6 +71,7 @@ fun CalculatorScreen(
                         onShortDeleteClick = viewModel::onTopShortDeleteClick,
                         onResetAllClick = viewModel::onResetAll,
                         onSaveResultClick = viewModel::onSaveTopResultToBottom,
+                        onExitClick = handleExit,
                         modifier = Modifier
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
@@ -92,6 +103,7 @@ fun CalculatorScreen(
                         onShortDeleteClick = viewModel::onTopShortDeleteClick,
                         onResetAllClick = viewModel::onResetAll,
                         onSaveResultClick = viewModel::onSaveTopResultToBottom,
+                        onExitClick = handleExit,
                         modifier = Modifier.fillMaxWidth()
                     )
 

@@ -43,6 +43,13 @@ class CalculatorViewModel : ViewModel() {
         _bottomState.update { BottomCalculatorState() }
     }
 
+    fun onRedExitClick(onCloseActivity: () -> Unit) {
+        // Red button: Immediately reset all calculations and states, then close application
+        _topState.update { TopCalculatorState() }
+        _bottomState.update { BottomCalculatorState() }
+        onCloseActivity()
+    }
+
     fun onSaveTopResultToBottom(resultVal: String) {
         if (resultVal.isBlank() || resultVal == "Error") return
 
