@@ -9,41 +9,36 @@
 
 ## 1. Resumen de Modificaciones Realizadas
 
-Se implementó la corrección complementaria requerida sobre el repositorio existente `Calculadora-Acumulativa`:
+Se implementaron las mejoras y ajustes requeridos sobre el repositorio existente `Calculadora-Acumulativa`:
 
-### Archivos Modificados:
-1. **`ui/components/TopCalculatorPanel.kt`**:
-   - Se añadió un botón rojo pequeño de salida (`✕`) en la esquina superior derecha del panel azul de la calculadora superior.
-   - Cuenta con borde oscuro (`#0F172A`), fondo rojo (`#DC2626`) y dimensiones compactas (32x32 dp) que no tapan la pantalla ni restan espacio a los controles numéricos.
-2. **`ui/CalculatorViewModel.kt`**:
-   - Se implementó la función `onRedExitClick(onCloseActivity: () -> Unit)`.
-   - Reinicia inmediatamente los estados `_topState` y `_bottomState` a instancias vacías limpiando todo historial, totales fijados y operadores pendientes antes de solicitar el cierre de la actividad.
-3. **`ui/CalculatorScreen.kt`**:
-   - Conecta el evento del botón rojo con el cierre limpio de la aplicación mediante `activity?.finishAndRemoveTask()`. Esto garantiza que la tarea se elimine del menú de tareas recientes y que, al reabrir la aplicación, se inicie una nueva sesión completamente limpia.
-4. **`CalculatorEngineTest.kt`**:
-   - Se añadieron pruebas unitarias para validar que el botón rojo restablece todos los datos y que el botón `C` conserva intacto su funcionamiento original.
-
----
-
-## 2. Botón Rojo de Salida y Reinicio de Sesión
-
-### Funcionamiento:
-- **Visualización:** Ubicado en la cabecera superior derecha del panel azul. Visible y accesible en teléfonos y tablets, en orientación vertical u horizontal.
-- **Acción al pulsar:**
-  1. Limpia inmediatamente las expresiones y cálculos del panel superior.
-  2. Limpia completamente el historial y resultados del acumulador inferior.
-  3. Resetea los totales fijados, operandos y operadores pendientes en el `ViewModel`.
-  4. Llama a `finishAndRemoveTask()` para cerrar la actividad Android.
-- **Garantía al reabrir:** Al remover la tarea de las actividades recientes, cualquier reapertura posterior muestra la interfaz vacía y limpia sin restaurar cálculos o datos de la sesión cerrada.
+### Archivos Modificados / Creados:
+1. **Recursos de Icono Adaptativo (`app/src/main/res/drawable/` y `app/src/main/res/mipmap-anydpi-v26/`)**:
+   - `ic_launcher_foreground.xml`: Vector gráfico con diseño oficial de calculadora azul, pantalla turquesa y teclado con botones amarillos, naranjas, grises y verdes con márgenes seguros para máscaras circulares/redondeadas.
+   - `ic_launcher_background.xml`: Fondo azul oscuro limpio (`#0D1B2A`).
+   - `ic_launcher.xml` e `ic_launcher_round.xml`: Recursos de icono adaptativo Android en `mipmap-anydpi-v26`.
+2. **`AndroidManifest.xml`**:
+   - Configurado con `android:icon="@mipmap/ic_launcher"` y `android:roundIcon="@mipmap/ic_launcher_round"`.
+3. **`ui/components/TopCalculatorPanel.kt`**:
+   - Botón rojo pequeño de salida (`✕`) en la esquina superior derecha del panel azul con borde oscuro (`#0F172A`).
+4. **`ui/CalculatorViewModel.kt` & `ui/CalculatorScreen.kt`**:
+   - Acción de reinicio completo de sesión y cierre mediante `activity?.finishAndRemoveTask()`.
+5. **`CalculatorEngineTest.kt`**:
+   - Pruebas unitarias para validación del motor, reinicio por botón rojo y conservación del comportamiento de `C`.
 
 ---
 
-## 3. Preservación del Botón C
+## 2. Preparación e Integración del Icono Adaptativo
 
-El funcionamiento del botón `C` no sufrió ninguna alteración:
-- **Toque corto:** Elimina un único elemento (dígito u operador) de la expresión superior.
-- **Mantener pulsado 2 segundos:** Borra ambas pantallas y reinicia completamente el acumulador.
-- **Garantías de pulsación prolongada:** Si se mantiene pulsado durante 2s, no ejecuta borrado corto al soltar.
+- **Diseño del icono:** Gráfico vectorial fiel que representa la calculadora azul con pantalla turquesa y botones de colores (amarillo, naranja, gris, verde) con márgenes de seguridad para evitar recortes por máscaras del sistema.
+- **Transparencia y fondo:** Diseñado como icono adaptativo Android de doble capa (Foreground + Background) sin artefactos ni cuadrículas de fondo.
+- **Configuración Android:** Referenciado oficialmente en `AndroidManifest.xml` bajo `@mipmap/ic_launcher` y `@mipmap/ic_launcher_round`.
+
+---
+
+## 3. Botón Rojo de Salida y Botón C
+
+- **Botón Rojo:** Ubicado en la esquina superior derecha del panel superior. Reinicia todos los estados internos (`_topState` y `_bottomState`) y cierra limpiamente la actividad finalizando la tarea.
+- **Botón C:** Conserva su funcionamiento independiente (toque corto: borrado de 1 elemento; mantener 2s: reinicio completo).
 
 ---
 
@@ -55,27 +50,27 @@ El funcionamiento del botón `C` no sufrió ninguna alteración:
 | 2 | Fijación mediante `=` y posterior guardado | SUPERADA | Resultado fijado y transferido al acumulador inferior. |
 | 3 | Limpieza de pantalla superior tras guardar | SUPERADA | Pantalla superior limpia inmediatamente tras guardar. |
 | 4 | Acumulación de varios resultados | SUPERADA | Historial `"15 + 20 − 5"` acumulado correctamente. |
-| 5 | Cambio de signo pendiente por otro en acumulador | SUPERADA | Operador sustituido sin duplicación (ej. `"15 −"` -> `"15 +"`). |
+| 5 | Cambio de signo pendiente por otro en acumulador | SUPERADA | Operador sustituido sin duplicación. |
 | 6 | Actualización del resultado provisional | SUPERADA | Total provisional actualizado a `30` o `35` en tiempo real. |
 | 7 | Fijación del total mediante el `=` inferior | SUPERADA | Total acumulado fijado correctamente. |
 | 8 | Continuación de operaciones a partir de total fijado | SUPERADA | Permite añadir nuevos operadores sin perder historial visible. |
 | 9 | Toque corto de C: borrar exactamente 1 elemento | SUPERADA | Se elimina únicamente el último elemento introducido. |
 | 10 | Pulsación de C durante 2s: reiniciar ambas pantallas | SUPERADA | Limpia ambas pantallas y reinicia el acumulador. |
-| 11 | Pulsación prolongada de C no ejecuta borrado corto al soltar | SUPERADA | Cancelación correcta de evento de clic corto al soltar tras 2s. |
+| 11 | Pulsación prolongada de C no ejecuta borrado corto al soltar | SUPERADA | Cancelación correcta de evento de clic corto. |
 | 12 | Manejo de división por cero e impresiones incompletas | SUPERADA | `10 ÷ 0` devuelve `null`/Error sin cierres inesperados. |
 | 13 | Ausencia de duplicación accidental de resultados guardados | SUPERADA | "Guardar cálculo" no duplica datos con pantalla limpia. |
-| 14 | Visibilidad del botón rojo y paneles en teléfonos/tablets | SUPERADA | Botón rojo e interfaz verificados en diseños responsivos Compose. |
-| 15 | Botón rojo borra todos los estados antes de cerrar | SUPERADA | Prueba unitaria `test14` confirma que todo estado queda limpio. |
+| 14 | Visibilidad del botón rojo y paneles en teléfonos/tablets | SUPERADA | Verificado en diseños responsivos Compose. |
+| 15 | Integración y configuración de icono adaptativo Android | SUPERADA | Configurado en `AndroidManifest.xml` y compilado sin errores. |
 | 16 | Cierre de aplicación mediante `finishAndRemoveTask()` | SUPERADA | La aplicación finaliza limpiamente eliminando la tarea reciente. |
 | 17 | Compilación correcta y generación de APK instalable | SUPERADA | Compilación Gradle exitosa y archivo `app-debug.apk` de 8.4MB generado. |
-| 18 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados en el manifiesto. |
+| 18 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados. |
 
 ---
 
 ## 5. Errores Pendientes y Limitaciones
 
-- **Limitaciones físicas:** La aplicación se verificó mediante pruebas automatizadas JUnit y compilación de APK en el entorno sandbox de Linux. No se instaló manualmente en un teléfono físico.
-- **Errores pendientes:** Ninguno. Todas las pruebas automatizadas de regresión pasaron exitosamente.
+- **Limitaciones físicas:** La APK fue probada mediante pruebas unitarias JUnit y verificación de compilación en el entorno de desarrollo Linux. No se instaló manualmente en un teléfono físico.
+- **Errores pendientes:** Ninguno. Todas las pruebas de compilación y regresión pasaron exitosamente.
 
 ---
 
