@@ -1,20 +1,26 @@
 # INFORME_JULES.md - Calculadora Acumulativa Android
 
-Este informe documenta las correcciones finales aplicadas al proyecto **Calculadora Acumulativa Android**, incluyendo la corrección del icono de la aplicación, la reducción del botón rojo de salida, el intercambio físico de las teclas `C` y `÷`, y los resultados de las pruebas.
+Este informe documenta la actualización del icono de la aplicación utilizando la imagen personalizada proporcionada por el usuario, manteniendo intactas todas las funcionalidades, el diseño de cristal oscuro, la distribución en rejilla de 4 columnas y la suite de pruebas unitarias.
 
 ---
 
-## 1. Resumen de Correcciones Aplicadas
+## 1. Resumen de Modificaciones Aplicadas
 
-1. **Corrección del Icono Real de la Aplicación**:
-   - **Causa anterior**: El proyecto conservaba archivos PNG estáticos precompilados en las carpetas `mipmap-hdpi`, `mipmap-mdpi`, `mipmap-xhdpi`, `mipmap-xxhdpi` y `mipmap-xxxhdpi`. Android da prioridad a los recursos de densidad específicos sobre el archivo de adaptación genérico cuando coexisten.
-   - **Solución**: Se actualizaron todos los archivos PNG de alta resolución (`ic_launcher.png` y `ic_launcher_round.png`) en todas las carpetas de densidad (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) con el nuevo diseño gráfico tecnológico de cristal oscuro azul y verde. También se actualizaron los vectores `ic_launcher_foreground.xml` e `ic_launcher_background.xml`.
+1. **Actualización del Icono Real de la Aplicación con la Imagen Proporcionada**:
+   - **Procesamiento de imagen**: Se tomó la imagen de alta resolución provista por el usuario (`file_000000005800820ea0039ca7b3491d3f.png`) y se escaló/resampleó mediante filtro Lanczos a todas las carpetas de densidad de Android:
+     - `mipmap-mdpi`: 48x48 px
+     - `mipmap-hdpi`: 72x72 px
+     - `mipmap-xhdpi`: 96x96 px
+     - `mipmap-xxhdpi`: 144x144 px
+     - `mipmap-xxxhdpi`: 192x192 px
+   - **Archivos actualizados**: Se generaron y reemplazaron tanto `ic_launcher.png` como `ic_launcher_round.png` en cada densidad.
+   - **Remoción de directiva adaptativa contradictoria**: Se eliminó la carpeta `mipmap-anydpi-v26` para asegurar que Android utilice los recursos PNG mipmap exactos provistos por el usuario en todos los niveles de API.
 2. **Reducción del Tamaño del Botón Rojo de Salida**:
    - Se ajustó el botón `✕` de la esquina superior derecha en `TopCalculatorPanel.kt` a un cuadro compacto de `24.dp` de diámetro con texto en `12.sp`.
    - Se eliminó el solapamiento con la etiqueta "Calculadora Individual", manteniendo la estética de cristal rojo y su comportamiento de limpiar el estado y cerrar la app mediante `finish()`.
 3. **Intercambio Físico de Posiciones entre C y ÷**:
    - En `TopCalculatorPanel.kt`, se intercambiaron físicamente los botones `C` y `÷`:
-     - **Fila 1 (Superior)**: `1`, `2`, `3`, `÷` (el operador de división ocupa ahora la posición de la derecha en la primera fila).
+     - **Fila 1 (Superior)**: `1`, `2`, `3`, `÷` (el operador de división ocupa la posición derecha de la primera fila).
      - **Fila 4 (Inferior)**: `C`, `0`, `.`, `+` (el botón C ocupa la posición izquierda de la cuarta fila).
    - Se conservó intacta la funcionalidad: pulsación corta en `C` borra un elemento; pulsación prolongada de 2s borra ambas pantallas y reinicia el acumulador (sin disparo accidental de toque corto al soltar).
 
@@ -23,9 +29,7 @@ Este informe documenta las correcciones finales aplicadas al proyecto **Calculad
 ## 2. Archivos Modificados y Finalidad
 
 - **`app/src/main/res/mipmap-*/ic_launcher.png` & `ic_launcher_round.png`**:
-  - Imágenes PNG de icono actualizadas en todas las densidades con estética de cristal oscuro tecnológico.
-- **`app/src/main/res/drawable/ic_launcher_foreground.xml` & `ic_launcher_background.xml`**:
-  - Vectores de icono adaptativo alineados con el diseño tecnológico.
+  - Imágenes PNG de icono actualizadas en todas las densidades (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) a partir del PNG provisto por el usuario.
 - **`app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt`**:
   - Reducción del botón rojo `✕` a `24.dp` e intercambio físico de posiciones de `C` y `÷`.
 
@@ -51,9 +55,9 @@ Se verificó expresamente que todas las funciones sigan operando correctamente:
 | # | Grupo de Prueba / Verificación | Estado | Detalle |
 |---|---|---|---|
 | 1 | Compilación Kotlin (`./gradlew compileDebugKotlin`) | **SUPERADA** | Sin errores de sintaxis ni referencias no resueltas. |
-| 2 | Compilación completa de APK (`./gradlew assembleDebug`) | **SUPERADA** | APK generada en `app/build/outputs/apk/debug/app-debug.apk` (8.7 MB). |
+| 2 | Compilación completa de APK (`./gradlew assembleDebug`) | **SUPERADA** | APK generada exitosamente en `app/build/outputs/apk/debug/app-debug.apk`. |
 | 3 | Pruebas Unitarias Automatizadas (`./gradlew test`) | **SUPERADA** | 100% de pruebas unitarias aprobadas (16/16). |
-| 4 | Verificación de icono nuevo en recursos mipmap | **SUPERADA** | Todas las densidades actualizadas con gráficos de cristal tecnológico. |
+| 4 | Verificación de icono nuevo en recursos mipmap | **SUPERADA** | Generados recursos `ic_launcher.png` e `ic_launcher_round.png` en todas las densidades desde la imagen provista. |
 | 5 | Tamaño y alineación del botón rojo | **SUPERADA** | Cuadro compacto de 24.dp sin superposición de texto. |
 | 6 | Posiciones intercambiadas de C y ÷ | **SUPERADA** | ÷ en Fila 1 (Posición 4); C en Fila 4 (Posición 1). |
 
