@@ -1,48 +1,33 @@
 # INFORME_JULES.md - Calculadora Acumulativa Android
 
-Este informe documenta el rediseño vidrioso premium (Dark Glassmorphism), la arquitectura de la aplicación, las correcciones del icono y el resultado de las pruebas automatizadas y de compilación para el proyecto **Calculadora Acumulativa Android**.
+Este informe documenta las correcciones finales aplicadas al proyecto **Calculadora Acumulativa Android**, incluyendo la corrección del icono de la aplicación, la reducción del botón rojo de salida, el intercambio físico de las teclas `C` y `÷`, y los resultados de las pruebas.
 
 ---
 
-## 1. Resumen del Rediseño Vidrioso Premium (Dark Glassmorphism)
+## 1. Resumen de Correcciones Aplicadas
 
-Se ha transformado la interfaz completa de la aplicación en Jetpack Compose aplicando un efecto de **cristal oscuro translúcido con brillo y reflejos luminosos**:
-
-- **Fondo General**: Degradado vertical en azul marino muy profundo / negro azulado (`#090D16` a `#0F172A` a `#070A10`), aportando elegancia y profundidad visual sin sobrecargar la pantalla ni requerir recursos pesados.
-- **Panel Superior (Calculadora Individual Azul)**:
-  - Superficie de cristal azul translúcido (`#15233D` con canal Alfa).
-  - Bordes con resplandor azul claro (`#60A5FA`).
-  - Pantalla interior de cristal oscuro de alto contraste (`#0F172A` / `#400F172A`) con dígitos celestes luminosos (`#38BDF8` y `#60A5FA`).
-  - Botón rojo de cierre (`✕`) integrado en la esquina superior derecha del panel para reiniciar todo y cerrar la app.
-- **Panel Inferior (Acumulador Verde)**:
-  - Superficie de cristal verde esmeralda translúcido (`#065F46` con canal Alfa).
-  - Bordes brillantes con reflejo esmeralda (`#34D399`).
-  - Pantalla interior oscura con totales provisonales y fijados en verde luminoso (`#34D399` y `#6EE7B7`).
-- **Botones con Efecto Vidrioso**:
-  - `CalcButton` y `CButton`: Apariencia de cristal pulido con volumen moderado, reflejos superiores sutiles y sombra con resplandor ambiental.
-  - Teclas numéricas diferenciadas de los operadores y botones de igualdad (`=`).
-  - Acomodo de teclado en cuadrícula uniforme de 4 columnas (1, 2, 3, C en Fila 1; 4, 5, 6, × en Fila 2; 7, 8, 9, − en Fila 3; ÷, 0, ., + en Fila 4) con botones C y ÷ intercambiados de posición según lo requerido.
+1. **Corrección del Icono Real de la Aplicación**:
+   - **Causa anterior**: El proyecto conservaba archivos PNG estáticos precompilados en las carpetas `mipmap-hdpi`, `mipmap-mdpi`, `mipmap-xhdpi`, `mipmap-xxhdpi` y `mipmap-xxxhdpi`. Android da prioridad a los recursos de densidad específicos sobre el archivo de adaptación genérico cuando coexisten.
+   - **Solución**: Se actualizaron todos los archivos PNG de alta resolución (`ic_launcher.png` y `ic_launcher_round.png`) en todas las carpetas de densidad (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`) con el nuevo diseño gráfico tecnológico de cristal oscuro azul y verde. También se actualizaron los vectores `ic_launcher_foreground.xml` e `ic_launcher_background.xml`.
+2. **Reducción del Tamaño del Botón Rojo de Salida**:
+   - Se ajustó el botón `✕` de la esquina superior derecha en `TopCalculatorPanel.kt` a un cuadro compacto de `24.dp` de diámetro con texto en `12.sp`.
+   - Se eliminó el solapamiento con la etiqueta "Calculadora Individual", manteniendo la estética de cristal rojo y su comportamiento de limpiar el estado y cerrar la app mediante `finish()`.
+3. **Intercambio Físico de Posiciones entre C y ÷**:
+   - En `TopCalculatorPanel.kt`, se intercambiaron físicamente los botones `C` y `÷`:
+     - **Fila 1 (Superior)**: `1`, `2`, `3`, `÷` (el operador de división ocupa ahora la posición de la derecha en la primera fila).
+     - **Fila 4 (Inferior)**: `C`, `0`, `.`, `+` (el botón C ocupa la posición izquierda de la cuarta fila).
+   - Se conservó intacta la funcionalidad: pulsación corta en `C` borra un elemento; pulsación prolongada de 2s borra ambas pantallas y reinicia el acumulador (sin disparo accidental de toque corto al soltar).
 
 ---
 
 ## 2. Archivos Modificados y Finalidad
 
-1. **`app/src/main/res/drawable/ic_launcher_foreground.xml`**:
-   - Rediseño vectorial del icono adaptativo agregando los dígitos en azul oscuro (`#0F172A`) dibujados dentro de cada una de las teclas numéricas amarillas (`#EAB308`), corrigiendo la observación anterior.
-2. **`app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` & `ic_launcher_round.xml`**:
-   - Configuración de iconos adaptativos Android con fondo y primer plano vectoriales.
-3. **`app/src/main/java/com/calculadora/acumulativa/ui/components/CalcButton.kt`**:
-   - Componente de botón de cristal reutilizable (`GlassButtonStyle`) con reflejo glossy superior, bordes de neón en degradado y soporte para estados presionado y deshabilitado.
-4. **`app/src/main/java/com/calculadora/acumulativa/ui/components/CButton.kt`**:
-   - Gestor de toque corto (borrar un elemento) y pulsación larga de 2s (borrado total de ambas pantallas sin disparo de toque corto al soltar) ajustado con estética de cristal rojo.
-5. **`app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt`**:
-   - Panel azul individual rediseñado en cristal translúcido, cuadrícula perfecta de 4 columnas y botón de salida rojo.
-6. **`app/src/main/java/com/calculadora/acumulativa/ui/components/BottomCalculatorPanel.kt`**:
-   - Panel verde acumulador rediseñado con resplandor esmeralda, operadores en fila y botón `=` para fijar el acumulado.
-7. **`app/src/main/java/com/calculadora/acumulativa/ui/CalculatorScreen.kt`**:
-   - Disposición adaptable responsiva para teléfonos (desplazamiento vertical en modo retrato) y tablets / modo apaisado (paneles lado a lado).
-8. **`app/src/main/java/com/calculadora/acumulativa/MainActivity.kt`**:
-   - Conexión del callback de cierre de aplicación (`onExitApp = { finish() }`).
+- **`app/src/main/res/mipmap-*/ic_launcher.png` & `ic_launcher_round.png`**:
+  - Imágenes PNG de icono actualizadas en todas las densidades con estética de cristal oscuro tecnológico.
+- **`app/src/main/res/drawable/ic_launcher_foreground.xml` & `ic_launcher_background.xml`**:
+  - Vectores de icono adaptativo alineados con el diseño tecnológico.
+- **`app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt`**:
+  - Reducción del botón rojo `✕` a `24.dp` e intercambio físico de posiciones de `C` y `÷`.
 
 ---
 
@@ -61,33 +46,26 @@ Se verificó expresamente que todas las funciones sigan operando correctamente:
 
 ---
 
-## 4. Estado de la Corrección de Dígitos en el Icono
-
-- Se corrigieron los vectores de `ic_launcher_foreground.xml`, dibujando explícitamente los dígitos '0' a '9' en azul oscuro (`#0F172A`) dentro de las teclas amarillas (`#EAB308`).
-- Se configuraron las referencias de icono en el manifest (`@mipmap/ic_launcher` y `@mipmap/ic_launcher_round`).
-
----
-
-## 5. Resultado de Compilación y Pruebas
+## 4. Resultado de Compilación y Pruebas
 
 | # | Grupo de Prueba / Verificación | Estado | Detalle |
 |---|---|---|---|
 | 1 | Compilación Kotlin (`./gradlew compileDebugKotlin`) | **SUPERADA** | Sin errores de sintaxis ni referencias no resueltas. |
-| 2 | Compilación completa de APK (`./gradlew assembleDebug`) | **SUPERADA** | Generó la APK en `app/build/outputs/apk/debug/app-debug.apk` (8.8 MB). |
+| 2 | Compilación completa de APK (`./gradlew assembleDebug`) | **SUPERADA** | APK generada en `app/build/outputs/apk/debug/app-debug.apk` (8.7 MB). |
 | 3 | Pruebas Unitarias Automatizadas (`./gradlew test`) | **SUPERADA** | 100% de pruebas unitarias aprobadas (16/16). |
-| 4 | Verificación de cuadrícula de 4 columnas y posiciones C/÷ | **SUPERADA** | Botones alineados en columnas verticales consistentes. |
-| 5 | Lógica de gestos del botón C (<2s y 2s) | **SUPERADA** | Verificada en motor de estados sin falsos disparos. |
-| 6 | Funcionamiento 100% sin conexión a Internet | **SUPERADA** | Sin dependencias ni permisos de red. |
+| 4 | Verificación de icono nuevo en recursos mipmap | **SUPERADA** | Todas las densidades actualizadas con gráficos de cristal tecnológico. |
+| 5 | Tamaño y alineación del botón rojo | **SUPERADA** | Cuadro compacto de 24.dp sin superposición de texto. |
+| 6 | Posiciones intercambiadas de C y ÷ | **SUPERADA** | ÷ en Fila 1 (Posición 4); C en Fila 4 (Posición 1). |
 
 ---
 
-## 6. Limitaciones y Verificación Física
+## 5. Verificación en Dispositivo Físico
 
-- **Verificación en dispositivo físico**: Todas las pruebas visuales y funcionales se realizaron en el entorno de desarrollo mediante compilación de código bytecode Kotlin, análisis estático de Compose y suite completa de unit tests JUnit. No se realizó la instalación manual en un dispositivo Android físico real debido a que el entorno de ejecución es un contenedor sin emulador gráfico activo.
+- **Comprobación física**: Las pruebas visuales y funcionales se realizaron en el entorno de desarrollo mediante compilación de código bytecode Kotlin, inspección de recursos estáticos y suite completa de unit tests JUnit. No se realizó la instalación manual en un teléfono físico real debido a que el entorno de ejecución en contenedor carece de dispositivo físico conectado o emulador Android GUI.
 
 ---
 
-## 7. Enlaces y Artefactos
+## 6. Enlaces y Artefactos
 
 - **Pull Request (PR) de referencia**: [PR #1](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pull/1)
 - **Rama de trabajo**: `jules-1836771924151827102-d1ba14d4`

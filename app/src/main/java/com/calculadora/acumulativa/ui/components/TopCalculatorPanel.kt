@@ -2,6 +2,7 @@ package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,7 +65,7 @@ fun TopCalculatorPanel(
             )
             .padding(12.dp)
     ) {
-        // Top Header Row with Panel Label & Red Exit Button
+        // Top Header Row with Panel Label & Compact Red Exit Button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,15 +80,39 @@ fun TopCalculatorPanel(
                 fontWeight = FontWeight.Bold
             )
 
-            // Glassmorphic Red Exit Button
-            CalcButton(
-                text = "✕",
-                onClick = onExitClick,
-                style = GlassButtonStyle.EXIT,
-                fontSize = 15.sp,
-                height = 32.dp,
-                modifier = Modifier.padding(0.dp)
-            )
+            // Compact Glassmorphic Red Exit Button (24.dp)
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0x90DC2626),
+                                Color(0x60991B1B)
+                            )
+                        )
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFFF87171),
+                                Color(0x40F87171)
+                            )
+                        ),
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                    .clickable { onExitClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "✕",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         // Display Area
@@ -140,8 +166,9 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Perfect 4-Column Uniform Keypad Grid (Numbers 1-9, 0 & Swapped C & ÷)
-        // Row 1: 1, 2, 3, C
+        // Perfect 4-Column Uniform Keypad Grid
+        // Swapped C and ÷ positions: ÷ is in Row 1 (Position 4), C is in Row 4 (Position 1)
+        // Row 1: 1, 2, 3, ÷
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -149,11 +176,7 @@ fun TopCalculatorPanel(
             CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
             CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
             CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CButton(
-                modifier = Modifier.weight(1f),
-                onShortClick = onShortDeleteClick,
-                onLongPress2Sec = onResetAllClick
-            )
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -184,12 +207,16 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 4: ÷, 0, ., +
+        // Row 4: C, 0, ., +
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CButton(
+                modifier = Modifier.weight(1f),
+                onShortClick = onShortDeleteClick,
+                onLongPress2Sec = onResetAllClick
+            )
             CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
             CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
             CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
