@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.calculadora.acumulativa.domain.BottomCalculatorState
@@ -30,6 +32,8 @@ fun BottomCalculatorPanel(
     state: BottomCalculatorState,
     onOperatorClick: (String) -> Unit,
     onEqualsClick: () -> Unit,
+    btnHeight: Dp = 48.dp,
+    btnFontSize: TextUnit = 20.sp,
     modifier: Modifier = Modifier
 ) {
     // Glassmorphic Green Theme Colors
@@ -60,7 +64,7 @@ fun BottomCalculatorPanel(
         Text(
             text = "Acumulador de Resultados",
             color = Color(0xFFD1FAE5),
-            fontSize = 15.sp,
+            fontSize = if (btnHeight > 50.dp) 18.sp else 15.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -86,7 +90,7 @@ fun BottomCalculatorPanel(
             Text(
                 text = if (state.expression.isBlank()) "0" else state.expression,
                 color = Color(0xFFA7F3D0),
-                fontSize = 18.sp,
+                fontSize = if (btnHeight > 50.dp) 22.sp else 18.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -105,7 +109,7 @@ fun BottomCalculatorPanel(
             Text(
                 text = resultDisplay,
                 color = if (state.isFixed) Color(0xFF34D399) else Color(0xFF6EE7B7),
-                fontSize = 22.sp,
+                fontSize = if (btnHeight > 50.dp) 26.sp else 22.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -121,10 +125,10 @@ fun BottomCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
+            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -135,6 +139,8 @@ fun BottomCalculatorPanel(
             onClick = onEqualsClick,
             modifier = Modifier.fillMaxWidth(),
             style = GlassButtonStyle.EQUALS_GREEN,
+            fontSize = btnFontSize,
+            height = btnHeight,
             enabled = state.suggestedTotal != null && !state.isFixed
         )
     }

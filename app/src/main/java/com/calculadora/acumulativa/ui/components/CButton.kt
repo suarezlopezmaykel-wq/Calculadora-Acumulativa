@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Job
@@ -33,6 +35,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun CButton(
     modifier: Modifier = Modifier,
+    height: Dp = 48.dp,
+    fontSize: TextUnit = 20.sp,
     onShortClick: () -> Unit,
     onLongPress2Sec: () -> Unit
 ) {
@@ -53,7 +57,7 @@ fun CButton(
 
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(height)
             .shadow(
                 elevation = if (isPressed) 1.dp else 4.dp,
                 shape = RoundedCornerShape(10.dp),
@@ -124,7 +128,7 @@ fun CButton(
         Text(
             text = "C",
             color = Color.White,
-            fontSize = 20.sp,
+            fontSize = fontSize,
             fontWeight = FontWeight.Bold
         )
     }

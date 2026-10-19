@@ -24,6 +24,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.calculadora.acumulativa.domain.TopCalculatorState
@@ -41,6 +43,9 @@ fun TopCalculatorPanel(
     onResetAllClick: () -> Unit,
     onSaveResultClick: (String) -> Unit,
     onExitClick: () -> Unit,
+    btnHeight: Dp = 48.dp,
+    btnFontSize: TextUnit = 20.sp,
+    saveBtnFontSize: TextUnit = 11.sp,
     modifier: Modifier = Modifier
 ) {
     // Glassmorphic Blue Theme Colors
@@ -78,14 +83,14 @@ fun TopCalculatorPanel(
             Text(
                 text = "Calculadora Individual",
                 color = Color(0xFFE0F2FE),
-                fontSize = 15.sp,
+                fontSize = if (btnHeight > 50.dp) 18.sp else 15.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            // Compact Glassmorphic Red Exit Button (24.dp)
+            // Compact Glassmorphic Red Exit Button (24.dp / 28.dp)
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(if (btnHeight > 50.dp) 28.dp else 24.dp)
                     .clip(RoundedCornerShape(6.dp))
                     .background(
                         brush = Brush.verticalGradient(
@@ -111,7 +116,7 @@ fun TopCalculatorPanel(
                 Text(
                     text = "✕",
                     color = Color.White,
-                    fontSize = 12.sp,
+                    fontSize = if (btnHeight > 50.dp) 14.sp else 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -138,7 +143,7 @@ fun TopCalculatorPanel(
             Text(
                 text = if (state.expression.isBlank()) "0" else state.expression,
                 color = Color(0xFFCBD5E1),
-                fontSize = 20.sp,
+                fontSize = if (btnHeight > 50.dp) 24.sp else 20.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -157,7 +162,7 @@ fun TopCalculatorPanel(
             Text(
                 text = resultDisplay,
                 color = if (state.isFixed) Color(0xFF60A5FA) else Color(0xFF38BDF8),
-                fontSize = 24.sp,
+                fontSize = if (btnHeight > 50.dp) 28.sp else 24.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -174,10 +179,10 @@ fun TopCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, fontSize = btnFontSize, height = btnHeight)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -187,10 +192,10 @@ fun TopCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("4", { onDigitClick("4") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("5", { onDigitClick("5") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("6", { onDigitClick("6") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CalcButton("4", { onDigitClick("4") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("5", { onDigitClick("5") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("6", { onDigitClick("6") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, fontSize = btnFontSize, height = btnHeight)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -200,10 +205,10 @@ fun TopCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, fontSize = btnFontSize, height = btnHeight)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -215,19 +220,19 @@ fun TopCalculatorPanel(
         ) {
             CButton(
                 modifier = Modifier.weight(1f),
+                height = btnHeight,
+                fontSize = btnFontSize,
                 onShortClick = onShortDeleteClick,
                 onLongPress2Sec = onResetAllClick
             )
-            CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, fontSize = btnFontSize, height = btnHeight)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
         // Row 5: Exact order: "=" | "%" | "√" | "Guardar cálculo"
-        // "=", "%", and "√" match the exact width/weight (1f) of numeric buttons
-        // "Guardar cálculo" is scaled down in weight (1.6f) to accommodate all 4 buttons legibly
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -241,6 +246,8 @@ fun TopCalculatorPanel(
                 onClick = onEqualsClick,
                 modifier = Modifier.weight(1f),
                 style = GlassButtonStyle.EQUALS_BLUE,
+                fontSize = btnFontSize,
+                height = btnHeight,
                 enabled = canFix
             )
 
@@ -248,14 +255,18 @@ fun TopCalculatorPanel(
                 text = "%",
                 onClick = onPercentClick,
                 modifier = Modifier.weight(1f),
-                style = GlassButtonStyle.OPERATOR_BLUE
+                style = GlassButtonStyle.OPERATOR_BLUE,
+                fontSize = btnFontSize,
+                height = btnHeight
             )
 
             CalcButton(
                 text = "√",
                 onClick = onSquareRootClick,
                 modifier = Modifier.weight(1f),
-                style = GlassButtonStyle.OPERATOR_BLUE
+                style = GlassButtonStyle.OPERATOR_BLUE,
+                fontSize = btnFontSize,
+                height = btnHeight
             )
 
             CalcButton(
@@ -267,7 +278,8 @@ fun TopCalculatorPanel(
                 },
                 modifier = Modifier.weight(1.6f),
                 style = GlassButtonStyle.SAVE,
-                fontSize = 11.sp,
+                fontSize = saveBtnFontSize,
+                height = btnHeight,
                 enabled = canSave
             )
         }
