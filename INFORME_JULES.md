@@ -9,40 +9,35 @@
 
 ## 1. Resumen de Modificaciones Realizadas
 
-Se implementaron las mejoras y ajustes requeridos sobre el repositorio existente `Calculadora-Acumulativa`:
+Se implementaron las correcciones de diseño, distribución y alineación requeridas sobre el repositorio existente `Calculadora-Acumulativa`:
 
-### Archivos Modificados / Creados:
-1. **Recursos de Icono Adaptativo (`app/src/main/res/drawable/` y `app/src/main/res/mipmap-anydpi-v26/`)**:
-   - `ic_launcher_foreground.xml`: Vector gráfico con diseño oficial de calculadora azul, pantalla turquesa y teclado con botones amarillos, naranjas, grises y verdes con márgenes seguros para máscaras circulares/redondeadas.
-   - `ic_launcher_background.xml`: Fondo azul oscuro limpio (`#0D1B2A`).
-   - `ic_launcher.xml` e `ic_launcher_round.xml`: Recursos de icono adaptativo Android en `mipmap-anydpi-v26`.
-2. **`AndroidManifest.xml`**:
-   - Configurado con `android:icon="@mipmap/ic_launcher"` y `android:roundIcon="@mipmap/ic_launcher_round"`.
-3. **`ui/components/TopCalculatorPanel.kt`**:
-   - Botón rojo pequeño de salida (`✕`) en la esquina superior derecha del panel azul con borde oscuro (`#0F172A`).
-4. **`ui/CalculatorViewModel.kt` & `ui/CalculatorScreen.kt`**:
-   - Acción de reinicio completo de sesión y cierre mediante `activity?.finishAndRemoveTask()`.
-5. **`CalculatorEngineTest.kt`**:
-   - Pruebas unitarias para validación del motor, reinicio por botón rojo y conservación del comportamiento de `C`.
-
----
-
-## 2. Preparación e Integración del Icono Adaptativo
-
-- **Diseño del icono:** Gráfico vectorial fiel que representa la calculadora azul con pantalla turquesa y botones de colores (amarillo, naranja, gris, verde) con márgenes de seguridad para evitar recortes por máscaras del sistema.
-- **Transparencia y fondo:** Diseñado como icono adaptativo Android de doble capa (Foreground + Background) sin artefactos ni cuadrículas de fondo.
-- **Configuración Android:** Referenciado oficialmente en `AndroidManifest.xml` bajo `@mipmap/ic_launcher` y `@mipmap/ic_launcher_round`.
+### Archivos Modificados:
+1. **`ui/components/TopCalculatorPanel.kt`**:
+   - **Reordenamiento de números de arriba a abajo:** Se reestructuró la cuadrícula numérica en secuencia ascendente vertical:
+     - Fila 1: `1`, `2`, `3`, `C`, `÷`
+     - Fila 2: `4`, `5`, `6`, `×`
+     - Fila 3: `7`, `8`, `9`, `−`
+     - Fila 4: `0`, `.`, `+`
+     - Fila 5: `=`, `Guardar cálculo`
+   - **Intercambio de posiciones entre C y ÷:** Se intercambiaron físicamente las celdas del botón `C` y del botón `÷`. `C` ocupa la cuarta columna y `÷` la quinta columna de la fila 1. La lógica funcional permanece 100% intacta (`C` realiza borrado corto con 1 toque o borrado total al mantener 2s; `÷` realiza la división matemática).
+2. **`ui/components/CalcButton.kt` & `ui/components/CButton.kt`**:
+   - Se estableció una altura mínima uniforme de `48.dp`, tamaño de letra de `22.sp` y texto centrado para garantizar proporciones legibles y alineación perfecta en columnas.
+3. **`ui/components/BottomCalculatorPanel.kt`**:
+   - Se ampliaron las pantallas y filas de botones con rellenos y tamaños proporcionales para aprovechar el ancho útil de la pantalla en teléfonos y tablets.
+4. **`CalculatorEngineTest.kt`**:
+   - Se incorporaron pruebas unitarias (`test15` y `test16`) para validar la secuencia de números de arriba a abajo y el funcionamiento de las funciones intercambiadas de `C` y `÷`.
 
 ---
 
-## 3. Botón Rojo de Salida y Botón C
+## 2. Alineación, Proporciones y Aprovechamiento de Pantalla
 
-- **Botón Rojo:** Ubicado en la esquina superior derecha del panel superior. Reinicia todos los estados internos (`_topState` y `_bottomState`) y cierra limpiamente la actividad finalizando la tarea.
-- **Botón C:** Conserva su funcionamiento independiente (toque corto: borrado de 1 elemento; mantener 2s: reinicio completo).
+- **Alineación Vertical en Columnas:** Los números ocupan limpiamente las columnas 1, 2 y 3. Los operadores y botones de acción se alinean en las columnas contiguas.
+- **Aprovechamiento Útil del Teléfono:** Las pantallas de cálculo y filas de botones utilizan `fillMaxWidth()` y distribuciones con pesos (`weight`) para maximizar el área táctil sin generar desbordamientos ni recortes.
+- **Preservación de Funciones:** Se conservaron intactas la lógica matemática, la sustitución de signos en el acumulador, el botón `=` en cada panel, la función "Guardar cálculo", el botón rojo de salida con borrado completo y el icono adaptativo Android.
 
 ---
 
-## 4. Matriz de Pruebas Ejecutadas y Resultados
+## 3. Matriz de Pruebas Ejecutadas y Resultados
 
 | # | Escenario de Prueba | Estado | Resultado Obtenido |
 |---|---|---|---|
@@ -59,22 +54,22 @@ Se implementaron las mejoras y ajustes requeridos sobre el repositorio existente
 | 11 | Pulsación prolongada de C no ejecuta borrado corto al soltar | SUPERADA | Cancelación correcta de evento de clic corto. |
 | 12 | Manejo de división por cero e impresiones incompletas | SUPERADA | `10 ÷ 0` devuelve `null`/Error sin cierres inesperados. |
 | 13 | Ausencia de duplicación accidental de resultados guardados | SUPERADA | "Guardar cálculo" no duplica datos con pantalla limpia. |
-| 14 | Visibilidad del botón rojo y paneles en teléfonos/tablets | SUPERADA | Verificado en diseños responsivos Compose. |
-| 15 | Integración y configuración de icono adaptativo Android | SUPERADA | Configurado en `AndroidManifest.xml` y compilado sin errores. |
-| 16 | Cierre de aplicación mediante `finishAndRemoveTask()` | SUPERADA | La aplicación finaliza limpiamente eliminando la tarea reciente. |
+| 14 | Botón rojo de salida borra todos los estados antes de cerrar | SUPERADA | Cierre limpio y reset total en ViewModel. |
+| 15 | Orden numérico de arriba a abajo (1..9, 0) | SUPERADA | Verificada secuencia ascendente `1234567890`. |
+| 16 | Funciones e intercambio físico de posiciones de C y ÷ | SUPERADA | `10 ÷ 2 = 5` evalúa correctamente y `C` realiza borrado corto. |
 | 17 | Compilación correcta y generación de APK instalable | SUPERADA | Compilación Gradle exitosa y archivo `app-debug.apk` de 8.4MB generado. |
 | 18 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados. |
 
 ---
 
-## 5. Errores Pendientes y Limitaciones
+## 4. Errores Pendientes y Limitaciones
 
-- **Limitaciones físicas:** La APK fue probada mediante pruebas unitarias JUnit y verificación de compilación en el entorno de desarrollo Linux. No se instaló manualmente en un teléfono físico.
+- **Limitaciones físicas:** La aplicación se verificó mediante pruebas unitarias JUnit y compilación en el entorno Linux. No se instaló manualmente en un dispositivo móvil físico.
 - **Errores pendientes:** Ninguno. Todas las pruebas de compilación y regresión pasaron exitosamente.
 
 ---
 
-## 6. Enlaces y Artefactos
+## 5. Enlaces y Artefactos
 
 - **Pull Request:** [PR #1](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pull/1)
 - **Informe de desarrollo:** `INFORME_JULES.md`

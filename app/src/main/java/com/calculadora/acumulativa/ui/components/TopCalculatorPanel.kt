@@ -66,7 +66,7 @@ fun TopCalculatorPanel(
             Text(
                 text = "Calculadora Individual",
                 color = Color(0xFFE0F2FE),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -95,14 +95,14 @@ fun TopCalculatorPanel(
                 .fillMaxWidth()
                 .background(displayBg, RoundedCornerShape(8.dp))
                 .border(2.dp, displayBorder, RoundedCornerShape(8.dp))
-                .padding(8.dp),
+                .padding(10.dp),
             horizontalAlignment = Alignment.End
         ) {
             // Expression Line
             Text(
                 text = if (state.expression.isBlank()) "0" else state.expression,
                 color = Color(0xFF334155),
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -121,7 +121,7 @@ fun TopCalculatorPanel(
             Text(
                 text = resultDisplay,
                 color = if (state.isFixed) Color(0xFF1E40AF) else Color(0xFF0F172A),
-                fontSize = 22.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -130,23 +130,23 @@ fun TopCalculatorPanel(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Keypad Grid
-        // Row 1: 7, 8, 9, ÷, C
+        // Keypad Grid with Top-to-Bottom Digits (1..9, 0) and Swapped C & ÷
+        // Row 1: 1, 2, 3, C (where ÷ was), ÷ (where C was)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), buttonBg, buttonBorder)
             CButton(
                 modifier = Modifier.weight(1f),
                 onShortClick = onShortDeleteClick,
                 onLongPress2Sec = onResetAllClick
             )
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), buttonBg, buttonBorder)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -159,20 +159,20 @@ fun TopCalculatorPanel(
             CalcButton("4", { onDigitClick("4") }, Modifier.weight(1f), buttonBg, buttonBorder)
             CalcButton("5", { onDigitClick("5") }, Modifier.weight(1f), buttonBg, buttonBorder)
             CalcButton("6", { onDigitClick("6") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(2f), buttonBg, buttonBorder)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 3: 1, 2, 3, −
+        // Row 3: 7, 8, 9, −
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(2f), buttonBg, buttonBorder)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -184,7 +184,7 @@ fun TopCalculatorPanel(
         ) {
             CalcButton("0", { onDigitClick("0") }, Modifier.weight(2f), buttonBg, buttonBorder)
             CalcButton(".", { onDotClick() }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(2f), buttonBg, buttonBorder)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -201,7 +201,7 @@ fun TopCalculatorPanel(
             CalcButton(
                 text = "=",
                 onClick = onEqualsClick,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1.5f),
                 backgroundColor = equalsBtnBg,
                 borderColor = buttonBorder,
                 enabled = canFix
@@ -214,7 +214,7 @@ fun TopCalculatorPanel(
                         onSaveResultClick(targetSaveVal)
                     }
                 },
-                modifier = Modifier.weight(2.5f),
+                modifier = Modifier.weight(3.5f),
                 backgroundColor = saveBtnBg,
                 borderColor = buttonBorder,
                 fontSize = 16.sp,

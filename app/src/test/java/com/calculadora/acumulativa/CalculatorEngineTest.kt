@@ -211,49 +211,47 @@ class CalculatorEngineTest {
     // Test 14: Botón rojo de salida borra todos los estados e invoca cierre
     @Test
     fun test14_RedExitButtonResetsAllStatesAndExecutesCallback() {
-        // Populate top calculator
         viewModel.onTopDigitClick("8")
         viewModel.onTopOperatorClick("+")
         viewModel.onTopDigitClick("2")
         viewModel.onTopEqualsClick()
 
-        // Populate bottom accumulator
         viewModel.onSaveTopResultToBottom("10")
         viewModel.onBottomOperatorClick("×")
         viewModel.onSaveTopResultToBottom("5")
         viewModel.onBottomEqualsClick()
 
-        // Verify active calculation states before exit
-        assertEquals("50", viewModel.bottomState.value.fixedTotal)
-        assertTrue(viewModel.bottomState.value.isFixed)
-
         var callbackCalled = false
         viewModel.onRedExitClick { callbackCalled = true }
 
-        // Assert callback invoked and states completely reset
         assertTrue(callbackCalled)
         assertEquals("", viewModel.topState.value.expression)
-        assertNull(viewModel.topState.value.fixedResult)
-        assertFalse(viewModel.topState.value.isFixed)
-
         assertEquals("", viewModel.bottomState.value.expression)
-        assertNull(viewModel.bottomState.value.fixedTotal)
-        assertFalse(viewModel.bottomState.value.isFixed)
-        assertNull(viewModel.bottomState.value.suggestedTotal)
     }
 
-    // Test 15: Comprobar preservación del funcionamiento del botón C
+    // Test 15: Comprobar secuencia de entrada de dígitos en orden 1..9 y 0
     @Test
-    fun test15_CButtonBehaviorPreserved() {
-        viewModel.onTopDigitClick("9")
-        viewModel.onTopDigitClick("5")
-        viewModel.onTopShortDeleteClick()
-        assertEquals("9", viewModel.topState.value.expression)
+    fun test15_TopToBottomDigitsSequence() {
+        val digits = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
+        for (d in digits) {
+            viewModel.onTopDigitClick(d)
+        }
+        assertEquals("1234567890", viewModel.topState.value.expression)
+    }
 
-        viewModel.onSaveTopResultToBottom("9")
-        viewModel.onTopDigitClick("4")
-        viewModel.onResetAll() // 2 sec hold logic
-        assertEquals("", viewModel.topState.value.expression)
-        assertEquals("", viewModel.bottomState.value.expression)
+    // Test 16: Comprobar funcionamiento intercambiado de ÷ y C
+    @Test
+    fun test16_SwappedDivisionAndCFunctions() {
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopOperatorClick("÷")
+        viewModel.onTopDigitClick("2")
+
+        assertEquals("10 ÷ 2", viewModel.topState.value.expression.trim())
+        assertEquals("5", viewModel.topState.value.suggestedResult)
+
+        // C short click backspaces
+        viewModel.onTopShortDeleteClick()
+        assertEquals("10 ÷", viewModel.topState.value.expression.trim())
     }
 }

@@ -47,7 +47,7 @@ fun BottomCalculatorPanel(
         Text(
             text = "Acumulador de Resultados",
             color = Color(0xFFECFDF5),
-            fontSize = 14.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 6.dp)
         )
@@ -58,14 +58,14 @@ fun BottomCalculatorPanel(
                 .fillMaxWidth()
                 .background(displayBg, RoundedCornerShape(8.dp))
                 .border(2.dp, displayBorder, RoundedCornerShape(8.dp))
-                .padding(8.dp),
+                .padding(10.dp),
             horizontalAlignment = Alignment.End
         ) {
             // Expression Line (Saved results & pending operators)
             Text(
                 text = if (state.expression.isBlank()) "Sin resultados guardados" else state.expression,
                 color = Color(0xFF065F46),
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -84,7 +84,7 @@ fun BottomCalculatorPanel(
             Text(
                 text = resultDisplay,
                 color = if (state.isFixed) Color(0xFF047857) else Color(0xFF064E3B),
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -93,9 +93,9 @@ fun BottomCalculatorPanel(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Keypad: Operators +, −, ×, ÷ and Equals =
+        // Keypad: Operators +, −, ×, ÷
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)

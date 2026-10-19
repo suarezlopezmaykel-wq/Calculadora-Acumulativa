@@ -5,8 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
@@ -33,8 +34,9 @@ fun CButton(
     onLongPress2Sec: () -> Unit,
     normalBgColor: Color = Color(0xFFEF4444),
     pressedBgColor: Color = Color(0xFF991B1B),
-    borderColor: Color = Color(0xFF7F1D1D),
-    textColor: Color = Color.White
+    borderColor: Color = Color(0xFF0F172A),
+    textColor: Color = Color.White,
+    minHeight: Dp = 48.dp
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var isHolding2Sec by remember { mutableStateOf(false) }
@@ -51,6 +53,7 @@ fun CButton(
 
     Box(
         modifier = modifier
+            .heightIn(min = minHeight)
             .clip(RoundedCornerShape(8.dp))
             .background(currentBgColor)
             .border(2.dp, borderColor, RoundedCornerShape(8.dp))
@@ -88,8 +91,9 @@ fun CButton(
         Text(
             text = "C",
             color = textColor,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
         )
     }
 }
