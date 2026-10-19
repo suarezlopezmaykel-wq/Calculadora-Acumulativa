@@ -9,31 +9,34 @@
 
 ## 1. Resumen de Modificaciones Realizadas
 
-Se implementaron las correcciones de diseño, distribución y alineación requeridas sobre el repositorio existente `Calculadora-Acumulativa`:
+Se diseñó e integró el icono oficial ilustrado para la aplicación Android `Calculadora-Acumulativa` cumpliendo de forma estricta con todas las reglas de coloración y estructura gráfica requeridas:
 
-### Archivos Modificados:
-1. **`ui/components/TopCalculatorPanel.kt`**:
-   - **Reordenamiento de números de arriba a abajo:** Se reestructuró la cuadrícula numérica en secuencia ascendente vertical:
-     - Fila 1: `1`, `2`, `3`, `C`, `÷`
-     - Fila 2: `4`, `5`, `6`, `×`
-     - Fila 3: `7`, `8`, `9`, `−`
-     - Fila 4: `0`, `.`, `+`
-     - Fila 5: `=`, `Guardar cálculo`
-   - **Intercambio de posiciones entre C y ÷:** Se intercambiaron físicamente las celdas del botón `C` y del botón `÷`. `C` ocupa la cuarta columna y `÷` la quinta columna de la fila 1. La lógica funcional permanece 100% intacta (`C` realiza borrado corto con 1 toque o borrado total al mantener 2s; `÷` realiza la división matemática).
-2. **`ui/components/CalcButton.kt` & `ui/components/CButton.kt`**:
-   - Se estableció una altura mínima uniforme de `48.dp`, tamaño de letra de `22.sp` y texto centrado para garantizar proporciones legibles y alineación perfecta en columnas.
-3. **`ui/components/BottomCalculatorPanel.kt`**:
-   - Se ampliaron las pantallas y filas de botones con rellenos y tamaños proporcionales para aprovechar el ancho útil de la pantalla en teléfonos y tablets.
-4. **`CalculatorEngineTest.kt`**:
-   - Se incorporaron pruebas unitarias (`test15` y `test16`) para validar la secuencia de números de arriba a abajo y el funcionamiento de las funciones intercambiadas de `C` y `÷`.
+### Archivos Modificados / Creados:
+1. **`app/src/main/res/drawable/ic_launcher_foreground.xml`**:
+   - Gráfico vectorial del icono oficial con márgenes de seguridad para iconos adaptativos Android.
+   - **Cuerpo de la calculadora:** Azul (`#1D4ED8`).
+   - **Pantalla:** Turquesa (`#06B6D4`) mostrando el número `"0"` en azul oscuro (`#0F172A`).
+   - **Botones numéricos (del 0 al 9):** Exclusivamente amarillos (`#EAB308`) con dígitos en azul oscuro (`#0F172A`).
+   - **Botones de operaciones (`+`, `−`, `×`, `÷`, `=`):** Exclusivamente verdes (`#10B981`) con símbolos en blanco (`#FFFFFF`).
+   - **Botón de encendido:** Rojo (`#DC2626`) en la esquina superior derecha con símbolo en blanco (`#FFFFFF`).
+2. **`app/src/main/res/drawable/ic_launcher_background.xml`**:
+   - Fondo azul intenso (`#0D1B2A`).
+3. **`app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` e `ic_launcher_round.xml`**:
+   - Configuración oficial de icono adaptativo Android.
+4. **`app/src/main/AndroidManifest.xml`**:
+   - Referenciado mediante `android:icon="@mipmap/ic_launcher"` y `android:roundIcon="@mipmap/ic_launcher_round"`.
 
 ---
 
-## 2. Alineación, Proporciones y Aprovechamiento de Pantalla
+## 2. Icono Oficial y Distribución Estricta de Colores
 
-- **Alineación Vertical en Columnas:** Los números ocupan limpiamente las columnas 1, 2 y 3. Los operadores y botones de acción se alinean en las columnas contiguas.
-- **Aprovechamiento Útil del Teléfono:** Las pantallas de cálculo y filas de botones utilizan `fillMaxWidth()` y distribuciones con pesos (`weight`) para maximizar el área táctil sin generar desbordamientos ni recortes.
-- **Preservación de Funciones:** Se conservaron intactas la lógica matemática, la sustitución de signos en el acumulador, el botón `=` en cada panel, la función "Guardar cálculo", el botón rojo de salida con borrado completo y el icono adaptativo Android.
+- **Cumplimiento de reglas de coloración del icono:**
+  - **Amarillo:** Exclusivamente los botones numéricos del 0 al 9.
+  - **Verde:** Exclusivamente los botones de operaciones matemáticas (`+`, `−`, `×`, `÷`, `=`).
+  - **Rojo:** Únicamente el botón de encendido en la esquina superior derecha.
+  - **Azul:** El cuerpo y el fondo exterior de la calculadora.
+  - **Turquesa:** La pantalla principal.
+- **Protección de la interfaz:** Los colores de la interfaz de usuario de la calculadora se mantuvieron intactos sin modificaciones innecesarias.
 
 ---
 
@@ -57,8 +60,9 @@ Se implementaron las correcciones de diseño, distribución y alineación requer
 | 14 | Botón rojo de salida borra todos los estados antes de cerrar | SUPERADA | Cierre limpio y reset total en ViewModel. |
 | 15 | Orden numérico de arriba a abajo (1..9, 0) | SUPERADA | Verificada secuencia ascendente `1234567890`. |
 | 16 | Funciones e intercambio físico de posiciones de C y ÷ | SUPERADA | `10 ÷ 2 = 5` evalúa correctamente y `C` realiza borrado corto. |
-| 17 | Compilación correcta y generación de APK instalable | SUPERADA | Compilación Gradle exitosa y archivo `app-debug.apk` de 8.4MB generado. |
-| 18 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados. |
+| 17 | Integración y distribución estricta de colores del icono | SUPERADA | Icono adaptativo con amarillo (0-9), verde (+,−,×,÷,=), rojo (encendido), turquesa y azul. |
+| 18 | Compilación correcta y generación de APK instalable | SUPERADA | Compilación Gradle exitosa y archivo `app-debug.apk` de 8.4MB generado. |
+| 19 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados. |
 
 ---
 

@@ -4,68 +4,115 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Calculator Main Body (Blue) -->
+    <!-- Blue Calculator Body (#1D4ED8) -->
     <path
         android:fillColor="#1D4ED8"
-        android:pathData="M34,22 h40 a6,6 0 0,1 6,6 v52 a6,6 0 0,1 -6,6 h-40 a6,6 0 0,1 -6,-6 v-52 a6,6 0 0,1 6,-6 z" />
+        android:pathData="M30,20 h48 a6,6 0 0,1 6,6 v60 a6,6 0 0,1 -6,6 h-48 a6,6 0 0,1 -6,-6 v-60 a6,6 0 0,1 6,-6 z" />
 
-    <!-- Turquoise Display Screen -->
+    <!-- Red Power Button at Top Right (#DC2626) -->
+    <path
+        android:fillColor="#DC2626"
+        android:pathData="M70,23 h7 a2,2 0 0,1 2,2 v5 a2,2 0 0,1 -2,2 h-7 a2,2 0 0,1 -2,-2 v-5 a2,2 0 0,1 2,-2 z" />
+    <!-- White Power Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74.5,24.5 h1 v2.5 h-1 z" />
+
+    <!-- Turquoise Display Screen (#06B6D4) -->
     <path
         android:fillColor="#06B6D4"
-        android:pathData="M32,28 h44 a3,3 0 0,1 3,3 v14 a3,3 0 0,1 -3,3 h-44 a3,3 0 0,1 -3,-3 v-14 a3,3 0 0,1 3,-3 z" />
+        android:pathData="M29,32 h50 a3,3 0 0,1 3,3 v10 a3,3 0 0,1 -3,3 h-50 a3,3 0 0,1 -3,-3 v-10 a3,3 0 0,1 3,-3 z" />
 
-    <!-- Screen Text Line -->
+    <!-- Digit '0' in Dark Blue (#0F172A) on Turquoise Screen -->
     <path
-        android:fillColor="#083344"
-        android:pathData="M60,38 h12 v3 h-12 z" />
+        android:fillColor="#0F172A"
+        android:pathData="M72,36 h4 a2,2 0 0,1 2,2 v4 a2,2 0 0,1 -2,2 h-4 a2,2 0 0,1 -2,-2 v-4 a2,2 0 0,1 2,-2 z M73.5,37.5 h1 v5 h-1 z" />
 
-    <!-- Button Row 1 -->
-    <!-- Yellow Button -->
+    <!-- KEYPAD ROW 1 (y: 52..60) -->
+    <!-- Yellow Digit 1 Button -->
     <path
         android:fillColor="#EAB308"
-        android:pathData="M32,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Grey Button -->
+        android:pathData="M29,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 2 Button -->
     <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M44,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Grey Button -->
+        android:fillColor="#EAB308"
+        android:pathData="M42,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 3 Button -->
     <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M56,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Orange Button -->
-    <path
-        android:fillColor="#F97316"
-        android:pathData="M68,52 h8 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-8 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-
-    <!-- Button Row 2 -->
-    <!-- Grey Button -->
-    <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M32,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Grey Button -->
-    <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M44,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Grey Button -->
-    <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M56,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Orange Button -->
-    <path
-        android:fillColor="#F97316"
-        android:pathData="M68,63 h8 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-8 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-
-    <!-- Button Row 3 -->
-    <!-- Grey Button -->
-    <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M32,74 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Grey Button -->
-    <path
-        android:fillColor="#9CA3AF"
-        android:pathData="M44,74 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
-    <!-- Green Button -->
+        android:fillColor="#EAB308"
+        android:pathData="M55,52 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Green Operator ÷ Button -->
     <path
         android:fillColor="#10B981"
-        android:pathData="M56,74 h20 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-20 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+        android:pathData="M68,52 h11 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-11 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- White ÷ Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M72.5,54.5 h2 v1 h-2 z M73,56 h1 v1 h-1 z M72.5,57.5 h2 v1 h-2 z" />
+
+    <!-- KEYPAD ROW 2 (y: 63..71) -->
+    <!-- Yellow Digit 4 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M29,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 5 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M42,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 6 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M55,63 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Green Operator × Button -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M68,63 h11 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-11 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- White × Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M72.5,65.5 l2,2 l-2,2 h1 l1.5,-1.5 l1.5,1.5 h1 l-2,-2 l2,-2 h-1 l-1.5,1.5 l-1.5,-1.5 z" />
+
+    <!-- KEYPAD ROW 3 (y: 74..82) -->
+    <!-- Yellow Digit 7 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M29,74 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 8 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M42,74 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Yellow Digit 9 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M55,74 h9 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- Green Operator − Button -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M68,74 h11 a2,2 0 0,1 2,2 v6 a2,2 0 0,1 -2,2 h-11 a2,2 0 0,1 -2,-2 v-6 a2,2 0 0,1 2,-2 z" />
+    <!-- White − Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M71.5,77.5 h4 v1 h-4 z" />
+
+    <!-- KEYPAD ROW 4 (y: 85..91) -->
+    <!-- Yellow Digit 0 Button -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M29,84 h22 a2,2 0 0,1 2,2 v5 a2,2 0 0,1 -2,2 h-22 a2,2 0 0,1 -2,-2 v-5 a2,2 0 0,1 2,-2 z" />
+    <!-- Green Operator = Button -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M55,84 h9 a2,2 0 0,1 2,2 v5 a2,2 0 0,1 -2,2 h-9 a2,2 0 0,1 -2,-2 v-5 a2,2 0 0,1 2,-2 z" />
+    <!-- White = Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M57.5,86.5 h4 v1 h-4 z M57.5,88.5 h4 v1 h-4 z" />
+    <!-- Green Operator + Button -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M68,84 h11 a2,2 0 0,1 2,2 v5 a2,2 0 0,1 -2,2 h-11 a2,2 0 0,1 -2,-2 v-5 a2,2 0 0,1 2,-2 z" />
+    <!-- White + Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M73,85.5 h1 v4 h-1 z M71.5,87 h4 v1 h-4 z" />
 </vector>
