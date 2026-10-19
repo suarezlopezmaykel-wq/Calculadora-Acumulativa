@@ -22,9 +22,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF0D1B2A)
+                color = Color(0xFF090D16)
             ) {
-                CalculatorScreen(viewModel = viewModel)
+                CalculatorScreen(
+                    viewModel = viewModel,
+                    onExitApp = { finish() }
+                )
             }
         }
     }

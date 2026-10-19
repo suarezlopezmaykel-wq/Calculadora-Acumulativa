@@ -14,6 +14,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,43 +32,61 @@ fun BottomCalculatorPanel(
     onEqualsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Colors
-    val panelBg = Color(0xFF20503B)         // Light green panel (brighter green)
-    val displayBg = Color(0xFFDCFCE7)       // Very light green display
-    val displayBorder = Color(0xFF064E3B)   // Dark green border
-    val buttonBg = Color(0xFF059669)        // Green buttons
-    val buttonBorder = Color(0xFF064E3B)    // Dark green borders
-    val equalsBtnBg = Color(0xFF10B981)     // Bright green for Equals
+    // Glassmorphic Green Theme Colors
+    val panelBgGradient = listOf(
+        Color(0x35065F46), // Translucent deep emerald
+        Color(0x20022C22)
+    )
+    val panelBorder = Color(0x7034D399) // Luminous green glow border
+
+    val displayBg = Color(0x40022C22)    // Dark display glass
+    val displayBorder = Color(0x6010B981)
 
     Column(
         modifier = modifier
-            .background(panelBg, RoundedCornerShape(12.dp))
-            .border(2.dp, Color(0xFF064E3B), RoundedCornerShape(12.dp))
-            .padding(10.dp)
+            .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = Color(0x6010B981))
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.verticalGradient(panelBgGradient))
+            .border(
+                width = 1.5.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(panelBorder, panelBorder.copy(alpha = 0.2f))
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(12.dp)
     ) {
         // Panel Label
         Text(
             text = "Acumulador de Resultados",
-            color = Color(0xFFECFDF5),
+            color = Color(0xFFD1FAE5),
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 6.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
         // Display Area
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(displayBg, RoundedCornerShape(8.dp))
-                .border(2.dp, displayBorder, RoundedCornerShape(8.dp))
-                .padding(10.dp),
+                .shadow(4.dp, RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .background(displayBg)
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(displayBorder, displayBorder.copy(alpha = 0.2f))
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(12.dp),
             horizontalAlignment = Alignment.End
         ) {
-            // Expression Line (Saved results & pending operators)
+            // Expression Line (Cumulative expression & saved items)
             Text(
-                text = if (state.expression.isBlank()) "Sin resultados guardados" else state.expression,
-                color = Color(0xFF065F46),
-                fontSize = 20.sp,
+                text = if (state.expression.isBlank()) "0" else state.expression,
+                color = Color(0xFFA7F3D0),
+                fontSize = 18.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -74,16 +95,16 @@ fun BottomCalculatorPanel(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Result Line
+            // Provisional / Fixed Result Line
             val resultDisplay = when {
-                state.isFixed -> "Total Acumulado = ${state.fixedTotal} (Fijado)"
-                state.suggestedTotal != null -> "Total Provisional = ${state.suggestedTotal}"
-                else -> "Total Provisional = 0"
+                state.isFixed -> "Total fijado = ${state.fixedTotal}"
+                state.suggestedTotal != null -> "Total provisional = ${state.suggestedTotal}"
+                else -> "Total = 0"
             }
 
             Text(
                 text = resultDisplay,
-                color = if (state.isFixed) Color(0xFF047857) else Color(0xFF064E3B),
+                color = if (state.isFixed) Color(0xFF34D399) else Color(0xFF6EE7B7),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -95,33 +116,26 @@ fun BottomCalculatorPanel(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Keypad: Operators +, −, ×, ÷
+        // Green Operators Row (+ − × ÷)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
+            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
+            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Single '=' button below suggested result to fix total
-        Row(
+        // Equals Button = to Fix Cumulative Total
+        CalcButton(
+            text = "=",
+            onClick = onEqualsClick,
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            val canFix = state.suggestedTotal != null && state.expression.isNotBlank()
-            CalcButton(
-                text = "=",
-                onClick = onEqualsClick,
-                modifier = Modifier.fillMaxWidth(),
-                backgroundColor = equalsBtnBg,
-                borderColor = buttonBorder,
-                enabled = canFix
-            )
-        }
+            style = GlassButtonStyle.EQUALS_GREEN,
+            enabled = state.suggestedTotal != null && !state.isFixed
+        )
     }
 }

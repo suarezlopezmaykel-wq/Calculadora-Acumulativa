@@ -2,7 +2,6 @@ package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +10,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,27 +39,35 @@ fun TopCalculatorPanel(
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Colors
-    val panelBg = Color(0xFF1E3A5F)         // Light blue panel
-    val displayBg = Color(0xFFE0F2FE)       // Very light blue display
-    val displayBorder = Color(0xFF0F172A)   // Dark border
-    val buttonBg = Color(0xFF2563EB)        // Blue buttons
-    val buttonBorder = Color(0xFF0F172A)    // Dark borders
-    val saveBtnBg = Color(0xFF1D4ED8)       // Darker blue for Save
-    val equalsBtnBg = Color(0xFF0284C7)     // Vibrant blue for Equals
-    val exitBtnBg = Color(0xFFDC2626)       // Red exit button
+    // Glassmorphic Blue Theme Colors
+    val panelBgGradient = listOf(
+        Color(0x351E3A5F), // Translucent deep ice blue
+        Color(0x200F172A)
+    )
+    val panelBorder = Color(0x7060A5FA) // Luminous light blue glow border
+
+    val displayBg = Color(0x400F172A)    // Deep dark display glass
+    val displayBorder = Color(0x6038BDF8)
 
     Column(
         modifier = modifier
-            .background(panelBg, RoundedCornerShape(12.dp))
-            .border(2.dp, Color(0xFF0D1B2A), RoundedCornerShape(12.dp))
-            .padding(10.dp)
+            .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = Color(0x603B82F6))
+            .clip(RoundedCornerShape(16.dp))
+            .background(Brush.verticalGradient(panelBgGradient))
+            .border(
+                width = 1.5.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(panelBorder, panelBorder.copy(alpha = 0.2f))
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(12.dp)
     ) {
         // Top Header Row with Panel Label & Red Exit Button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 6.dp),
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -70,38 +78,38 @@ fun TopCalculatorPanel(
                 fontWeight = FontWeight.Bold
             )
 
-            // Red Exit Button
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(exitBtnBg)
-                    .border(2.dp, Color(0xFF0F172A), RoundedCornerShape(6.dp))
-                    .clickable { onExitClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "✕",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            // Glassmorphic Red Exit Button
+            CalcButton(
+                text = "✕",
+                onClick = onExitClick,
+                style = GlassButtonStyle.EXIT,
+                fontSize = 15.sp,
+                height = 32.dp,
+                modifier = Modifier.padding(0.dp)
+            )
         }
 
         // Display Area
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(displayBg, RoundedCornerShape(8.dp))
-                .border(2.dp, displayBorder, RoundedCornerShape(8.dp))
-                .padding(10.dp),
+                .shadow(4.dp, RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp))
+                .background(displayBg)
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(displayBorder, displayBorder.copy(alpha = 0.2f))
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(12.dp),
             horizontalAlignment = Alignment.End
         ) {
             // Expression Line
             Text(
                 text = if (state.expression.isBlank()) "0" else state.expression,
-                color = Color(0xFF334155),
+                color = Color(0xFFCBD5E1),
                 fontSize = 20.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -120,7 +128,7 @@ fun TopCalculatorPanel(
 
             Text(
                 text = resultDisplay,
-                color = if (state.isFixed) Color(0xFF1E40AF) else Color(0xFF0F172A),
+                color = if (state.isFixed) Color(0xFF60A5FA) else Color(0xFF38BDF8),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -132,21 +140,20 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Keypad Grid with Top-to-Bottom Digits (1..9, 0) and Swapped C & ÷
-        // Row 1: 1, 2, 3, C (where ÷ was), ÷ (where C was)
+        // Perfect 4-Column Uniform Keypad Grid (Numbers 1-9, 0 & Swapped C & ÷)
+        // Row 1: 1, 2, 3, C
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), buttonBg, buttonBorder)
+            CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
             CButton(
                 modifier = Modifier.weight(1f),
                 onShortClick = onShortDeleteClick,
                 onLongPress2Sec = onResetAllClick
             )
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), buttonBg, buttonBorder)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -156,10 +163,10 @@ fun TopCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("4", { onDigitClick("4") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("5", { onDigitClick("5") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("6", { onDigitClick("6") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(2f), buttonBg, buttonBorder)
+            CalcButton("4", { onDigitClick("4") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("5", { onDigitClick("5") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("6", { onDigitClick("6") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -169,27 +176,28 @@ fun TopCalculatorPanel(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(2f), buttonBg, buttonBorder)
+            CalcButton("7", { onDigitClick("7") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("8", { onDigitClick("8") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("9", { onDigitClick("9") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 4: 0, ., +
+        // Row 4: ÷, 0, ., +
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            CalcButton("0", { onDigitClick("0") }, Modifier.weight(2f), buttonBg, buttonBorder)
-            CalcButton(".", { onDotClick() }, Modifier.weight(1f), buttonBg, buttonBorder)
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(2f), buttonBg, buttonBorder)
+            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
+            CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 5: Equals = (under suggested result) & Guardar cálculo
+        // Row 5: Equals = (under result) & Guardar cálculo
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -201,9 +209,8 @@ fun TopCalculatorPanel(
             CalcButton(
                 text = "=",
                 onClick = onEqualsClick,
-                modifier = Modifier.weight(1.5f),
-                backgroundColor = equalsBtnBg,
-                borderColor = buttonBorder,
+                modifier = Modifier.weight(1.2f),
+                style = GlassButtonStyle.EQUALS_BLUE,
                 enabled = canFix
             )
 
@@ -214,9 +221,8 @@ fun TopCalculatorPanel(
                         onSaveResultClick(targetSaveVal)
                     }
                 },
-                modifier = Modifier.weight(3.5f),
-                backgroundColor = saveBtnBg,
-                borderColor = buttonBorder,
+                modifier = Modifier.weight(2.8f),
+                style = GlassButtonStyle.SAVE,
                 fontSize = 16.sp,
                 enabled = canSave
             )
