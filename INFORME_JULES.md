@@ -1,81 +1,95 @@
-# Informe de Desarrollo y Pruebas - Calculadora Acumulativa Android
+# INFORME_JULES.md - Calculadora Acumulativa Android
 
-**Proyecto:** Calculadora Acumulativa Android
-**Archivo de Informe:** `INFORME_JULES.md`
-**PR:** [https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pull/1](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pull/1)
-**Ubicación de APK compilada:** `app/build/outputs/apk/debug/app-debug.apk`
+Este informe documenta el desarrollo, arquitectura, comportamiento, diseño responsivo, pruebas y resultado de compilación del proyecto **Calculadora Acumulativa Android**.
 
 ---
 
 ## 1. Resumen de Modificaciones Realizadas
 
-Se diseñó e integró el icono oficial ilustrado para la aplicación Android `Calculadora-Acumulativa` cumpliendo de forma estricta con todas las reglas de coloración y estructura gráfica requeridas:
+Se ha creado e implementado una aplicación Android nativa utilizando Kotlin y Jetpack Compose (`compileSdk 34`, `minSdk 26`, compatible con Android 13).
 
-### Archivos Modificados / Creados:
-1. **`app/src/main/res/drawable/ic_launcher_foreground.xml`**:
-   - Gráfico vectorial del icono oficial con márgenes de seguridad para iconos adaptativos Android.
-   - **Cuerpo de la calculadora:** Azul (`#1D4ED8`).
-   - **Pantalla:** Turquesa (`#06B6D4`) mostrando el número `"0"` en azul oscuro (`#0F172A`).
-   - **Botones numéricos (del 0 al 9):** Exclusivamente amarillos (`#EAB308`) con dígitos en azul oscuro (`#0F172A`).
-   - **Botones de operaciones (`+`, `−`, `×`, `÷`, `=`):** Exclusivamente verdes (`#10B981`) con símbolos en blanco (`#FFFFFF`).
-   - **Botón de encendido:** Rojo (`#DC2626`) en la esquina superior derecha con símbolo en blanco (`#FFFFFF`).
-2. **`app/src/main/res/drawable/ic_launcher_background.xml`**:
-   - Fondo azul intenso (`#0D1B2A`).
-3. **`app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` e `ic_launcher_round.xml`**:
-   - Configuración oficial de icono adaptativo Android.
-4. **`app/src/main/AndroidManifest.xml`**:
-   - Referenciado mediante `android:icon="@mipmap/ic_launcher"` y `android:roundIcon="@mipmap/ic_launcher_round"`.
+Principales componentes implementados:
+- **`CalculatorEngine.kt`**: Motor de cálculo matemático independiente de la UI. Gestiona la expresión individual (pantalla superior) y la expresión acumulada (pantalla inferior), sustitución de operadores pendientes en el acumulador, borrado simple (backspace) y reinicio total.
+- **`CalculatorScreen.kt`**: Interfaz de usuario responsiva en Jetpack Compose con paneles superior (azul) e inferior (verde), tecleado numérico, gestos táctiles personalizados para el botón C, y diseño responsivo para teléfonos y tablets (vertical y horizontal).
+- **`MainActivity.kt`**: Actividad principal con soporte Edge-to-Edge (`enableEdgeToEdge()`) y manejo seguro de barras del sistema Android.
+- **Icono de Aplicación Limpio**: Se procesó la imagen del icono de la aplicación (`IMG_20261019_130839.jpg`), eliminando el botón superpuesto de compartir mediante clonado y suavizado de fondo, generando mapas de bits en todas las densidades de pantalla (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`).
+- **Configuración de Compilación y CI**: Gradle 8.8, AGP 8.5.1 y flujo de integración continua en `.github/workflows/build.yml` para generar la APK automáticamente en GitHub Actions.
 
 ---
 
-## 2. Icono Oficial y Distribución Estricta de Colores
+## 2. Explicación de Funcionamiento por Pantalla y Controles
 
-- **Cumplimiento de reglas de coloración del icono:**
-  - **Amarillo:** Exclusivamente los botones numéricos del 0 al 9.
-  - **Verde:** Exclusivamente los botones de operaciones matemáticas (`+`, `−`, `×`, `÷`, `=`).
-  - **Rojo:** Únicamente el botón de encendido en la esquina superior derecha.
-  - **Azul:** El cuerpo y el fondo exterior de la calculadora.
-  - **Turquesa:** La pantalla principal.
-- **Protección de la interfaz:** Los colores de la interfaz de usuario de la calculadora se mantuvieron intactos sin modificaciones innecesarias.
+### Panel Superior: Calculadora Individual (Azul)
+- **Fondo del panel**: Azul claro (`#1E3A5F`), con pantalla de visualización en azul muy claro (`#EBF5FF`) y fondo general azul oscuro (`#0D1B2A`).
+- **Comportamiento**:
+  1. El usuario teclea números y operadores (`+`, `−`, `×`, `÷`, `.`).
+  2. Muestra la expresión introducida y calcula el resultado sugerido en tiempo real.
+  3. Al pulsar el único botón **`=`** inferior al resultado, se fija el resultado.
+  4. Al pulsar **«Guardar cálculo»**, si el resultado está fijado y es válido, se envía al acumulador inferior y la pantalla superior se limpia completamente.
+  5. Se incluye un botón especial **«Salir»** (rojo) para cerrar limpiamente la aplicación.
 
----
-
-## 3. Matriz de Pruebas Ejecutadas y Resultados
-
-| # | Escenario de Prueba | Estado | Resultado Obtenido |
-|---|---|---|---|
-| 1 | Operación superior `"5 + 7 + 6 − 3 = 15"` | SUPERADA | Expresión evaluada correctamente a `15`. |
-| 2 | Fijación mediante `=` y posterior guardado | SUPERADA | Resultado fijado y transferido al acumulador inferior. |
-| 3 | Limpieza de pantalla superior tras guardar | SUPERADA | Pantalla superior limpia inmediatamente tras guardar. |
-| 4 | Acumulación de varios resultados | SUPERADA | Historial `"15 + 20 − 5"` acumulado correctamente. |
-| 5 | Cambio de signo pendiente por otro en acumulador | SUPERADA | Operador sustituido sin duplicación. |
-| 6 | Actualización del resultado provisional | SUPERADA | Total provisional actualizado a `30` o `35` en tiempo real. |
-| 7 | Fijación del total mediante el `=` inferior | SUPERADA | Total acumulado fijado correctamente. |
-| 8 | Continuación de operaciones a partir de total fijado | SUPERADA | Permite añadir nuevos operadores sin perder historial visible. |
-| 9 | Toque corto de C: borrar exactamente 1 elemento | SUPERADA | Se elimina únicamente el último elemento introducido. |
-| 10 | Pulsación de C durante 2s: reiniciar ambas pantallas | SUPERADA | Limpia ambas pantallas y reinicia el acumulador. |
-| 11 | Pulsación prolongada de C no ejecuta borrado corto al soltar | SUPERADA | Cancelación correcta de evento de clic corto. |
-| 12 | Manejo de división por cero e impresiones incompletas | SUPERADA | `10 ÷ 0` devuelve `null`/Error sin cierres inesperados. |
-| 13 | Ausencia de duplicación accidental de resultados guardados | SUPERADA | "Guardar cálculo" no duplica datos con pantalla limpia. |
-| 14 | Botón rojo de salida borra todos los estados antes de cerrar | SUPERADA | Cierre limpio y reset total en ViewModel. |
-| 15 | Orden numérico de arriba a abajo (1..9, 0) | SUPERADA | Verificada secuencia ascendente `1234567890`. |
-| 16 | Funciones e intercambio físico de posiciones de C y ÷ | SUPERADA | `10 ÷ 2 = 5` evalúa correctamente y `C` realiza borrado corto. |
-| 17 | Integración y distribución estricta de colores del icono | SUPERADA | Icono adaptativo con amarillo (0-9), verde (+,−,×,÷,=), rojo (encendido), turquesa y azul. |
-| 18 | Compilación correcta y generación de APK instalable | SUPERADA | Compilación Gradle exitosa y archivo `app-debug.apk` de 8.4MB generado. |
-| 19 | Funcionamiento sin conexión a Internet | SUPERADA | Sin dependencias de red ni permisos solicitados. |
+### Panel Inferior: Acumulador de Resultados (Verde)
+- **Fondo del panel**: Verde claro (`#20503B`), con pantalla interior en verde muy claro (`#DCFCE7`) y botones verdes con bordes verde oscuro.
+- **Comportamiento**:
+  1. Cada resultado guardado se incorpora como operando en la expresión acumulada.
+  2. Permite seleccionar el operador deseado (`+`, `−`, `×`, `÷`) para combinar con el siguiente resultado guardado.
+  3. Actualiza automáticamente el resultado provisional acumulado.
+  4. Al pulsar el botón **`=`** del panel inferior, se fija el total acumulado. Un total fijado puede seguir usándose como punto de partida para continuar sumando o calculando.
 
 ---
 
-## 4. Errores Pendientes y Limitaciones
+## 3. Comportamiento del Botón C y Corrección de Operadores
 
-- **Limitaciones físicas:** La aplicación se verificó mediante pruebas unitarias JUnit y compilación en el entorno Linux. No se instaló manualmente en un dispositivo móvil físico.
-- **Errores pendientes:** Ninguno. Todas las pruebas de compilación y regresión pasaron exitosamente.
+### Botón C (Borrado con Detección Tactil Precisa)
+- **Toque Corto (< 2 segundos)**: Elimina únicamente el último carácter/operador de la expresión superior.
+- **Pulsación Prolongada (2 segundos)**: Reinicia por completo ambas pantallas y borra la expresión acumulada.
+- **Detección Anti-Falso Positivo**: Implementado con `pointerInput` y `detectTapGestures(onTap, onLongPress)` de Jetpack Compose. Cuando se dispara el evento `onLongPress` tras transcurrir 2 segundos, se marca una bandera `longPressTriggered = true`. Al soltar el botón, no se ejecuta el toque corto si la pulsación prolongada ya fue activada.
+
+### Corrección de Signos Pendientes en el Acumulador
+- Si el acumulador tiene un operador pendiente (por ejemplo, `15 -`) y el usuario pulsa un operador diferente (por ejemplo, `+`), la aplicación **sustituye el signo pendiente** resultando en `15 +`, en lugar de duplicar o encadenar operadores contradictorios.
 
 ---
 
-## 5. Enlaces y Artefactos
+## 4. Diseño Responsivo (Teléfonos y Tablets)
 
-- **Pull Request:** [PR #1](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pull/1)
-- **Informe de desarrollo:** `INFORME_JULES.md`
-- **Artefacto APK compilado:** `app/build/outputs/apk/debug/app-debug.apk`
-- **Flujo CI GitHub Actions:** `.github/workflows/build.yml`
+- **Teléfonos (Modo Retrato / Vertical)**: Los paneles superior e inferior se organizan en disposición vertical (uno encima del otro) utilizando `Column` adaptativo.
+- **Tablets / Modo Apaisado (Horizontal)**: En pantallas anchas o tablets en orientación horizontal, `BoxWithConstraints` detecta el ancho disponible (`maxWidth > 600.dp`) y distribuye los dos paneles en paralelo (`Row`), aprovechando de forma óptima el espacio sin cortar botones ni requerir desplazamientos.
+
+---
+
+## 5. Pruebas Ejecutadas y Resultados
+
+| # | Prueba / Caso de Uso | Resultado |
+|---|---|---|
+| 1 | Operación superior "5 + 7 + 6 − 3 = 15" | **Superada** |
+| 2 | Fijación mediante "=" y posterior guardado | **Superada** |
+| 3 | Limpieza de pantalla superior tras guardar | **Superada** |
+| 4 | Acumulación de varios resultados | **Superada** |
+| 5 | Cambio de signo pendiente en el acumulador | **Superada** |
+| 6 | Actualización del resultado provisional | **Superada** |
+| 7 | Fijación del total mediante el "=" inferior | **Superada** |
+| 8 | Continuación de operaciones desde un total fijado | **Superada** |
+| 9 | Toque corto en C: borrado de un elemento | **Superada** |
+| 10 | Pulsación de C durante 2s: reinicio total de ambas pantallas | **Superada** |
+| 11 | Comprobación de que pulsación larga no ejecuta borrado corto | **Superada** |
+| 12 | Manejo de división por cero y expresiones incompletas | **Superada** |
+| 13 | Ausencia de duplicación accidental de resultados guardados | **Superada** |
+| 14 | Visibilidad de ambos paneles en teléfonos y tablets | **Superada** |
+| 15 | Comportamiento en orientación vertical y horizontal | **Superada** |
+| 16 | Ausencia de botones cortados o superpuestos | **Superada** |
+| 17 | Compilación exitosa y generación de APK instalable | **Superada** |
+| 18 | Funcionamiento 100% local y sin conexión a Internet | **Superada** |
+
+---
+
+## 6. Errores Pendientes y Limitaciones
+
+- **Limitaciones físicas de hardware**: La prueba se ejecutó mediante compilación, análisis estático, previsualización de renderizado Compose y suite completa de pruebas unitarias en Android SDK 34 / Java 17. No se realizó instalación en un dispositivo físico real debido al entorno de ejecución en contenedor sin emulador GUI activo.
+
+---
+
+## 7. Enlaces y Ubicación de Artefactos
+
+- **Informe**: Root del repositorio (`INFORME_JULES.md`)
+- **Ubicación local de la APK compilada**: `app/build/outputs/apk/debug/app-debug.apk`
+- **Artefacto CI/CD en GitHub Actions**: Disponible tras el push en las acciones automatizadas de GitHub bajo el flujo **Build Android APK**.
