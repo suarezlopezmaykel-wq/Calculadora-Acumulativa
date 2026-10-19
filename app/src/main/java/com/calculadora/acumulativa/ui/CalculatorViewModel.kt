@@ -29,6 +29,14 @@ class CalculatorViewModel : ViewModel() {
         _topState.update { it.appendOperator(op) }
     }
 
+    fun onTopPercentClick() {
+        _topState.update { it.appendPercent() }
+    }
+
+    fun onTopSquareRootClick() {
+        _topState.update { it.appendSquareRoot() }
+    }
+
     fun onTopEqualsClick() {
         _topState.update { it.fixResult() }
     }

@@ -23,7 +23,6 @@ data class TopCalculatorState(
 
     fun appendDot(): TopCalculatorState {
         val baseExpr = if (isFixed) "" else expression
-        // Check if last token already has a dot
         val tokens = CalculatorEngine.tokenize(baseExpr)
         val lastToken = tokens.lastOrNull() ?: ""
         if (lastToken.contains('.')) return this.copy(isFixed = false)
@@ -58,15 +57,54 @@ data class TopCalculatorState(
         return TopCalculatorState(expression = newExpr, isFixed = false)
     }
 
+    fun appendPercent(): TopCalculatorState {
+        val baseExpr = if (isFixed && fixedResult != null && fixedResult != "Error") {
+            fixedResult
+        } else if (isFixed) {
+            ""
+        } else {
+            expression
+        }
+
+        if (baseExpr.isBlank()) return this
+        val trimmed = baseExpr.trimEnd()
+        if (trimmed.endsWith('%') || CalculatorEngine.isOperator(trimmed.last())) return this
+
+        val newExpr = "$trimmed%"
+        return TopCalculatorState(expression = newExpr, isFixed = false)
+    }
+
+    fun appendSquareRoot(): TopCalculatorState {
+        val baseExpr = if (isFixed && fixedResult != null && fixedResult != "Error") {
+            "√$fixedResult"
+        } else if (isFixed) {
+            "√"
+        } else {
+            expression
+        }
+
+        if (baseExpr.isBlank()) {
+            return TopCalculatorState(expression = "√", isFixed = false)
+        }
+
+        val trimmed = baseExpr.trimEnd()
+        val lastChar = trimmed.lastOrNull()
+
+        val newExpr = if (lastChar != null && CalculatorEngine.isOperator(lastChar)) {
+            "$trimmed √"
+        } else {
+            "√$trimmed"
+        }
+        return TopCalculatorState(expression = newExpr, isFixed = false)
+    }
+
     fun deleteLast(): TopCalculatorState {
         if (isFixed) {
-            // Reset fixed state
             return TopCalculatorState(expression = expression, isFixed = false)
         }
         if (expression.isEmpty()) return this
         val trimmed = expression.trimEnd()
         if (trimmed.isEmpty()) return copy(expression = "")
-        // Drop last character
         val newExpr = trimmed.dropLast(1).trimEnd()
         return copy(expression = newExpr, isFixed = false)
     }

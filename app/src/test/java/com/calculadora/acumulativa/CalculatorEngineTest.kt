@@ -254,4 +254,44 @@ class CalculatorEngineTest {
         viewModel.onTopShortDeleteClick()
         assertEquals("10 ÷", viewModel.topState.value.expression.trim())
     }
+
+    // Test 17: Percentage Cases
+    @Test
+    fun test17_PercentageCalculations() {
+        // "200 × 10 % = 20"
+        assertEquals("20", CalculatorEngine.evaluateFormatted("200 × 10%"))
+
+        // "200 + 10 % = 220"
+        assertEquals("220", CalculatorEngine.evaluateFormatted("200 + 10%"))
+
+        // "200 − 10 % = 180"
+        assertEquals("180", CalculatorEngine.evaluateFormatted("200 − 10%"))
+
+        // "200 ÷ 10 % = 2000"
+        assertEquals("2000", CalculatorEngine.evaluateFormatted("200 ÷ 10%"))
+
+        // "50 % = 0.5"
+        assertEquals("0.5", CalculatorEngine.evaluateFormatted("50%"))
+    }
+
+    // Test 18: Square Root Cases
+    @Test
+    fun test18_SquareRootCalculations() {
+        // "√9 = 3"
+        assertEquals("3", CalculatorEngine.evaluateFormatted("√9"))
+
+        // "√25 = 5"
+        assertEquals("5", CalculatorEngine.evaluateFormatted("√25"))
+
+        // "√2 = 1.4142135624" (or rounded plain string)
+        val resSqrt2 = CalculatorEngine.evaluateFormatted("√2")
+        assertTrue(resSqrt2 != null && resSqrt2.startsWith("1.414213"))
+
+        // "√0 = 0"
+        assertEquals("0", CalculatorEngine.evaluateFormatted("√0"))
+
+        // Negative input -> safe Error / null without exception
+        val resNeg = CalculatorEngine.evaluateFormatted("√-4")
+        assertNull(resNeg)
+    }
 }

@@ -35,6 +35,8 @@ fun TopCalculatorPanel(
     onOperatorClick: (String) -> Unit,
     onDotClick: () -> Unit,
     onEqualsClick: () -> Unit,
+    onPercentClick: () -> Unit = {},
+    onSquareRootClick: () -> Unit = {},
     onShortDeleteClick: () -> Unit,
     onResetAllClick: () -> Unit,
     onSaveResultClick: (String) -> Unit,
@@ -166,8 +168,7 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Perfect 4-Column Uniform Keypad Grid
-        // Swapped C and ÷ positions: ÷ is in Row 1 (Position 4), C is in Row 4 (Position 1)
+        // Keypad Grid
         // Row 1: 1, 2, 3, ÷
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -224,7 +225,9 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 5: Equals = (under result) & Guardar cálculo
+        // Row 5: Exact order: "=" | "%" | "√" | "Guardar cálculo"
+        // "=", "%", and "√" match the exact width/weight (1f) of numeric buttons
+        // "Guardar cálculo" is scaled down in weight (1.6f) to accommodate all 4 buttons legibly
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -236,9 +239,23 @@ fun TopCalculatorPanel(
             CalcButton(
                 text = "=",
                 onClick = onEqualsClick,
-                modifier = Modifier.weight(1.2f),
+                modifier = Modifier.weight(1f),
                 style = GlassButtonStyle.EQUALS_BLUE,
                 enabled = canFix
+            )
+
+            CalcButton(
+                text = "%",
+                onClick = onPercentClick,
+                modifier = Modifier.weight(1f),
+                style = GlassButtonStyle.OPERATOR_BLUE
+            )
+
+            CalcButton(
+                text = "√",
+                onClick = onSquareRootClick,
+                modifier = Modifier.weight(1f),
+                style = GlassButtonStyle.OPERATOR_BLUE
             )
 
             CalcButton(
@@ -248,9 +265,9 @@ fun TopCalculatorPanel(
                         onSaveResultClick(targetSaveVal)
                     }
                 },
-                modifier = Modifier.weight(2.8f),
+                modifier = Modifier.weight(1.6f),
                 style = GlassButtonStyle.SAVE,
-                fontSize = 16.sp,
+                fontSize = 11.sp,
                 enabled = canSave
             )
         }
