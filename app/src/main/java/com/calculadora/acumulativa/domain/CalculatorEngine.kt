@@ -26,11 +26,12 @@ object CalculatorEngine {
     }
 
     /**
-     * Formats a raw number string (e.g. "1234.56" or "99999999999999999"):
-     * Uses dot (.) for thousands separator in integer part and dot (.) for decimal point.
-     * Example: "1234.56" -> "1.234.56"
+     * Formats a raw number string (e.g. "1234.56" or "1234,56" or "99999999999999999"):
+     * Uses dot (.) for thousands separator in integer part and comma (,) for decimal point (Spanish format).
+     * Example: "1234.56" -> "1.234,56"
      * Example: "1000" -> "1.000"
-     * Example: "0.3" -> "0.3"
+     * Example: "0.3" -> "0,3"
+     * Example: "111.50" -> "111,50"
      * Example: "99999999999999999" -> "99.999.999.999.999.999"
      */
     fun formatNumberString(token: String): String {
@@ -38,7 +39,7 @@ object CalculatorEngine {
 
         var prefix = ""
         var suffix = ""
-        var numStr = token
+        var numStr = token.trim()
 
         if (numStr.startsWith("√")) {
             prefix = "√"
@@ -50,6 +51,11 @@ object CalculatorEngine {
         }
 
         if (numStr.isEmpty()) return token
+
+        // Unformat if already formatted (e.g. containing thousand dots or decimal commas)
+        if (numStr.contains(",") || (numStr.contains(".") && numStr.count { it == '.' } > 1)) {
+            numStr = unformatNumberString(numStr)
+        }
 
         val isNegative = numStr.startsWith("-") || numStr.startsWith("−")
         if (isNegative) {
@@ -64,7 +70,7 @@ object CalculatorEngine {
 
         val signStr = if (isNegative) "-" else ""
         val formattedNum = if (decPart != null) {
-            "$signStr$formattedInt.$decPart"
+            "$signStr$formattedInt,$decPart"
         } else {
             "$signStr$formattedInt"
         }
@@ -73,9 +79,13 @@ object CalculatorEngine {
     }
 
     fun formatBigDecimal(bd: BigDecimal): String {
-        val scaled = bd.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
-        val plain = scaled.toPlainString()
-        if (plain == "-0") return "0"
+        val plain = if (bd.scale() == 2) {
+            bd.setScale(2, RoundingMode.HALF_UP).toPlainString()
+        } else {
+            val scaled = bd.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
+            val str = scaled.toPlainString()
+            if (str == "-0") "0" else str
+        }
         return formatNumberString(plain)
     }
 
@@ -97,6 +107,24 @@ object CalculatorEngine {
             }
         }
         return sb.toString().trim()
+    }
+
+    /**
+     * Converts a formatted string (e.g., "1.234,56") back to a standard raw number string ("1234.56")
+     * suitable for BigDecimal parsing.
+     */
+    fun unformatNumberString(str: String): String {
+        if (str.isBlank()) return str
+        val clean = str.trim()
+        // If it contains a comma, the dots are thousands separators and comma is decimal separator
+        return if (clean.contains(",")) {
+            clean.replace(".", "").replace(",", ".")
+        } else if (clean.count { it == '.' } > 1) {
+            // Multiple dots means they are thousands separators
+            clean.replace(".", "")
+        } else {
+            clean
+        }
     }
 
     fun isOperator(char: Char): Boolean {
@@ -138,7 +166,7 @@ object CalculatorEngine {
                     }
                     tokens.add(normalizeOperator(c).toString())
                 }
-            } else if (c.isDigit() || c == '.' || c == '%' || c == '√') {
+            } else if (c.isDigit() || c == '.' || c == ',' || c == '%' || c == '√') {
                 sb.append(c)
             }
             i++
@@ -154,7 +182,7 @@ object CalculatorEngine {
     }
 
     private fun parseTokenValueBigDecimal(token: String, leftAccumulatedValue: BigDecimal?, prevOperator: Char?): BigDecimal? {
-        var text = token
+        var text = unformatNumberString(token)
 
         val isPercent = text.endsWith('%')
         if (isPercent) {
@@ -268,6 +296,17 @@ object CalculatorEngine {
             }
         }
 
+        // Check if all input tokens were monetary (had 2 decimal places e.g. 100.20 + 11.30)
+        val hasMonetaryDecimals = rawNumbers.all { rawToken ->
+            val numStr = unformatNumberString(rawToken)
+            val parts = numStr.split(".")
+            parts.size == 2 && parts[1].length == 2
+        } && rawNumbers.size > 1
+
+        if (hasMonetaryDecimals && result.scale() < 2) {
+            return result.setScale(2, RoundingMode.HALF_UP)
+        }
+
         return result
     }
 
@@ -278,6 +317,13 @@ object CalculatorEngine {
 
     fun evaluateFormatted(expression: String): String? {
         val bdResult = evaluateBigDecimal(expression) ?: return null
-        return bdResult.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+        return formatBigDecimal(bdResult)
+    }
+
+    fun evaluateRaw(expression: String): String? {
+        val bdResult = evaluateBigDecimal(expression) ?: return null
+        val plain = bdResult.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+        if (plain == "-0") return "0"
+        return plain
     }
 }

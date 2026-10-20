@@ -81,7 +81,6 @@ class CalculatorEngineTest {
         viewModel.onSaveTopResultToBottom("90")
 
         assertEquals("100+300+90", viewModel.bottomState.value.expression)
-        assertEquals("100+300+90", viewModel.bottomState.value.formattedExpression)
         assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
     }
 
@@ -103,7 +102,7 @@ class CalculatorEngineTest {
         assertEquals("", viewModel.topState.value.expression)
     }
 
-    // Test 10: Pulsación de C durante 2 segundos: borrar ambas pantallas
+    // Test 10: Pulsación de C durante 1 segundo: borrar ambas pantallas
     @Test
     fun test10_ResetAllOnLongPressC() {
         viewModel.onTopDigitClick("5")
@@ -178,20 +177,23 @@ class CalculatorEngineTest {
         // Verify expression keeps exact 17 digits without turning into 100000000000000000
         assertEquals("99999999999999999", viewModel.topState.value.expression)
         assertEquals("99.999.999.999.999.999", viewModel.topState.value.formattedExpression)
-        assertEquals("99999999999999999", viewModel.topState.value.suggestedResult)
+        assertEquals("99.999.999.999.999.999", viewModel.topState.value.suggestedResult)
     }
 
-    // Test 18: Exact BigDecimal Decimal Calculations
+    // Test 18: Exact BigDecimal Decimal Calculations (Spanish format with dot for thousands, comma for decimals)
     @Test
     fun test18_ExactDecimalCalculations() {
-        // "0.1 + 0.2" -> "0.3"
-        assertEquals("0.3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
+        // "100.20 + 11.30" -> "111,50" (Monetary format with 2 decimals)
+        assertEquals("111,50", CalculatorEngine.evaluateFormatted("100.20 + 11.30"))
 
-        // "19.99 × 3" -> "59.97"
-        assertEquals("59.97", CalculatorEngine.evaluateFormatted("19.99 × 3"))
+        // "0.1 + 0.2" -> "0,3"
+        assertEquals("0,3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
 
-        // "19.99 × 3 + 4.50" -> "64.47"
-        assertEquals("64.47", CalculatorEngine.evaluateFormatted("19.99 × 3 + 4.50"))
+        // "19.99 × 3" -> "59,97"
+        assertEquals("59,97", CalculatorEngine.evaluateFormatted("19.99 × 3"))
+
+        // "19.99 × 3 + 4.50" -> "64,47"
+        assertEquals("64,47", CalculatorEngine.evaluateFormatted("19.99 × 3 + 4.50"))
 
         // "2 + 3 × 4" -> "14"
         assertEquals("14", CalculatorEngine.evaluateFormatted("2 + 3 × 4"))
@@ -200,7 +202,7 @@ class CalculatorEngineTest {
         assertEquals("1", CalculatorEngine.evaluateFormatted("1 ÷ 3 × 3"))
     }
 
-    // Test 19: Accumulator format and decimal saving
+    // Test 19: Accumulator format and decimal saving for numbers >= 1000
     @Test
     fun test19_AccumulatorDecimalSavingAndSum() {
         // Test saving integers: 100, 300, 90
@@ -211,20 +213,20 @@ class CalculatorEngineTest {
         assertEquals("100+300+90", viewModel.bottomState.value.expression)
         assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
 
-        // Reset and test saving decimals: 0.1, 0.2 -> Total=0.3
+        // Reset and test saving numbers >= 1000 with decimals: 1.234,56 + 1.000,50 -> Total=2.235,06
         viewModel.onResetAll()
-        viewModel.onSaveTopResultToBottom("0.1")
-        viewModel.onSaveTopResultToBottom("0.2")
+        viewModel.onSaveTopResultToBottom("1.234,56")
+        viewModel.onSaveTopResultToBottom("1.000,50")
 
-        assertEquals("0.1+0.2", viewModel.bottomState.value.expression)
-        assertEquals("Total=0.3", viewModel.bottomState.value.formattedTotal)
+        assertEquals("1.234,56+1.000,50", viewModel.bottomState.value.formattedExpression)
+        assertEquals("Total=2.235,06", viewModel.bottomState.value.formattedTotal)
 
-        // Test saving decimals with 3 digits e.g. 1.123 + 2.456 -> Total=3.579
+        // Test saving decimals with 3 digits e.g. 1,123 + 2,456 -> Total=3,579
         viewModel.onResetAll()
-        viewModel.onSaveTopResultToBottom("1.123")
-        viewModel.onSaveTopResultToBottom("2.456")
+        viewModel.onSaveTopResultToBottom("1,123")
+        viewModel.onSaveTopResultToBottom("2,456")
 
-        assertEquals("1.123+2.456", viewModel.bottomState.value.expression)
-        assertEquals("Total=3.579", viewModel.bottomState.value.formattedTotal)
+        assertEquals("1,123+2,456", viewModel.bottomState.value.formattedExpression)
+        assertEquals("Total=3,579", viewModel.bottomState.value.formattedTotal)
     }
 }

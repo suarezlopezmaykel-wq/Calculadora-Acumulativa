@@ -10,11 +10,13 @@ data class BottomCalculatorState(
      * Example: "100+300+90" or "0.1+0.2"
      */
     val expression: String
-        get() = savedItems.joinToString("+")
+        get() = savedItems.joinToString("+") { item ->
+            CalculatorEngine.formatNumberString(item)
+        }
 
     /**
-     * Formatted expression with thousands separators for display.
-     * Example: "1.000+3.000+90" or "0.3+59.97"
+     * Formatted expression with thousands separators and Spanish decimal comma for display.
+     * Example: "1.000+3.000+90" or "0,1+0,2"
      */
     val formattedExpression: String
         get() = savedItems.joinToString("+") { item ->
@@ -28,7 +30,8 @@ data class BottomCalculatorState(
         get() {
             var sum = BigDecimal.ZERO
             for (item in savedItems) {
-                val bd = item.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                val clean = CalculatorEngine.unformatNumberString(item)
+                val bd = clean.toBigDecimalOrNull() ?: BigDecimal.ZERO
                 sum += bd
             }
             return sum
@@ -36,17 +39,18 @@ data class BottomCalculatorState(
 
     /**
      * Formatted total string.
-     * Example: "Total=490" or "Total=1.234.56"
+     * Example: "Total=490" or "Total=1.234,56"
      */
     val formattedTotal: String
-        get() = "Total=" + CalculatorEngine.formatNumberString(totalBigDecimal.toPlainString())
+        get() = "Total=" + CalculatorEngine.formatBigDecimal(totalBigDecimal)
 
     fun addSavedResult(result: String): BottomCalculatorState {
         val trimmedRes = result.trim()
         if (trimmedRes.isEmpty() || trimmedRes == "Error") return this
 
-        // Save raw exact number string without thousand dots
-        val newItems = savedItems + trimmedRes
+        // Safely unformat result to preserve exact decimal points
+        val rawNum = CalculatorEngine.unformatNumberString(trimmedRes)
+        val newItems = savedItems + rawNum
 
         return copy(savedItems = newItems)
     }

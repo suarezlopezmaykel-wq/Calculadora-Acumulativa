@@ -38,7 +38,8 @@ fun CButton(
     height: Dp = 48.dp,
     fontSize: TextUnit = 20.sp,
     onShortClick: () -> Unit,
-    onLongPress2Sec: () -> Unit
+    onLongPress1Sec: () -> Unit = {},
+    onLongPress2Sec: () -> Unit = onLongPress1Sec
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
@@ -90,8 +91,9 @@ fun CButton(
                         longPressTriggered = false
 
                         timerJob = coroutineScope.launch {
-                            delay(2000L)
+                            delay(1000L) // Exact 1000 ms (1 second) threshold
                             longPressTriggered = true
+                            onLongPress1Sec()
                             onLongPress2Sec()
                         }
 
