@@ -16,6 +16,9 @@ data class TopCalculatorState(
             return CalculatorEngine.evaluateFormatted(expression)
         }
 
+    val formattedExpression: String
+        get() = CalculatorEngine.formatExpressionForDisplay(expression)
+
     fun appendDigit(digit: String): TopCalculatorState {
         val newExpr = if (isFixed) digit else expression + digit
         return TopCalculatorState(expression = newExpr, isFixed = false)

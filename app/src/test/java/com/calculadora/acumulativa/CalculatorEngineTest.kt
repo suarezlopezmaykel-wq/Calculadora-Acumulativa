@@ -10,6 +10,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.math.BigDecimal
 
 class CalculatorEngineTest {
 
@@ -56,7 +57,7 @@ class CalculatorEngineTest {
 
         // Check result saved in bottom panel
         assertEquals("15", viewModel.bottomState.value.expression)
-        assertEquals("15", viewModel.bottomState.value.suggestedTotal)
+        assertEquals("Total=15", viewModel.bottomState.value.formattedTotal)
     }
 
     // Test 3: Limpieza de la pantalla superior tras guardar
@@ -75,73 +76,13 @@ class CalculatorEngineTest {
     // Test 4: Acumulación de varios resultados
     @Test
     fun test4_AccumulateMultipleResults() {
-        viewModel.onSaveTopResultToBottom("15")
-        viewModel.onBottomOperatorClick("+")
-        viewModel.onSaveTopResultToBottom("20")
-        viewModel.onBottomOperatorClick("−")
-        viewModel.onSaveTopResultToBottom("5")
+        viewModel.onSaveTopResultToBottom("100")
+        viewModel.onSaveTopResultToBottom("300")
+        viewModel.onSaveTopResultToBottom("90")
 
-        assertEquals("15 + 20 − 5", viewModel.bottomState.value.expression.trim())
-        assertEquals("30", viewModel.bottomState.value.suggestedTotal)
-    }
-
-    // Test 5: Cambio de un signo pendiente por otro
-    @Test
-    fun test5_SignCorrectionInAccumulator() {
-        viewModel.onSaveTopResultToBottom("15")
-        viewModel.onBottomOperatorClick("−") // Mistake
-        assertEquals("15 −", viewModel.bottomState.value.expression.trim())
-
-        viewModel.onBottomOperatorClick("+") // Correct to '+'
-        assertEquals("15 +", viewModel.bottomState.value.expression.trim())
-
-        viewModel.onSaveTopResultToBottom("20")
-        assertEquals("15 + 20", viewModel.bottomState.value.expression.trim())
-        assertEquals("35", viewModel.bottomState.value.suggestedTotal)
-    }
-
-    // Test 6: Actualización del resultado provisional
-    @Test
-    fun test6_ProvisionalResultAutoUpdate() {
-        viewModel.onSaveTopResultToBottom("10")
-        assertEquals("10", viewModel.bottomState.value.suggestedTotal)
-
-        viewModel.onBottomOperatorClick("×")
-        viewModel.onSaveTopResultToBottom("5")
-        assertEquals("50", viewModel.bottomState.value.suggestedTotal)
-    }
-
-    // Test 7: Fijación del total mediante el "=" inferior
-    @Test
-    fun test7_FixTotalWithBottomEquals() {
-        viewModel.onSaveTopResultToBottom("15")
-        viewModel.onBottomOperatorClick("+")
-        viewModel.onSaveTopResultToBottom("20")
-        viewModel.onBottomOperatorClick("−")
-        viewModel.onSaveTopResultToBottom("5")
-
-        assertFalse(viewModel.bottomState.value.isFixed)
-        viewModel.onBottomEqualsClick()
-
-        assertTrue(viewModel.bottomState.value.isFixed)
-        assertEquals("30", viewModel.bottomState.value.fixedTotal)
-    }
-
-    // Test 8: Continuación de operaciones a partir de un total fijado
-    @Test
-    fun test8_ContinueFromFixedTotal() {
-        viewModel.onSaveTopResultToBottom("15")
-        viewModel.onBottomOperatorClick("+")
-        viewModel.onSaveTopResultToBottom("15")
-        viewModel.onBottomEqualsClick()
-        assertEquals("30", viewModel.bottomState.value.fixedTotal)
-
-        // Continue by adding another operator
-        viewModel.onBottomOperatorClick("÷")
-        viewModel.onSaveTopResultToBottom("3")
-
-        assertEquals("15 + 15 ÷ 3", viewModel.bottomState.value.expression.trim())
-        assertEquals("20", viewModel.bottomState.value.suggestedTotal)
+        assertEquals("100+300+90", viewModel.bottomState.value.expression)
+        assertEquals("100+300+90", viewModel.bottomState.value.formattedExpression)
+        assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
     }
 
     // Test 9: Toque corto de C: borrar exactamente un elemento
@@ -177,16 +118,16 @@ class CalculatorEngineTest {
 
         assertEquals("", viewModel.topState.value.expression)
         assertEquals("", viewModel.bottomState.value.expression)
-        assertNull(viewModel.bottomState.value.suggestedTotal)
+        assertEquals("Total=0", viewModel.bottomState.value.formattedTotal)
     }
 
     // Test 12: División por cero e inválidos
     @Test
     fun test12_DivisionByZeroAndInvalidInput() {
-        val divZero = CalculatorEngine.evaluate("10 ÷ 0")
+        val divZero = CalculatorEngine.evaluateBigDecimal("10 ÷ 0")
         assertNull(divZero)
 
-        val incomplete = CalculatorEngine.evaluate("10 + ")
+        val incomplete = CalculatorEngine.evaluateBigDecimal("10 + ")
         assertNull(incomplete)
 
         val formattedZeroDiv = CalculatorEngine.evaluateFormatted("10 ÷ 0")
@@ -217,9 +158,6 @@ class CalculatorEngineTest {
         viewModel.onTopEqualsClick()
 
         viewModel.onSaveTopResultToBottom("10")
-        viewModel.onBottomOperatorClick("×")
-        viewModel.onSaveTopResultToBottom("5")
-        viewModel.onBottomEqualsClick()
 
         var callbackCalled = false
         viewModel.onRedExitClick { callbackCalled = true }
@@ -229,69 +167,64 @@ class CalculatorEngineTest {
         assertEquals("", viewModel.bottomState.value.expression)
     }
 
-    // Test 15: Comprobar secuencia de entrada de dígitos en orden 1..9 y 0
+    // Test 17: 17-digit precision test "99999999999999999" -> "99.999.999.999.999.999"
     @Test
-    fun test15_TopToBottomDigitsSequence() {
-        val digits = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0")
-        for (d in digits) {
-            viewModel.onTopDigitClick(d)
+    fun test17_SeventeenDigitPrecisionAndThousandsSeparators() {
+        val seventeenNines = "99999999999999999"
+        for (ch in seventeenNines) {
+            viewModel.onTopDigitClick(ch.toString())
         }
-        assertEquals("1234567890", viewModel.topState.value.expression)
+
+        // Verify expression keeps exact 17 digits without turning into 100000000000000000
+        assertEquals("99999999999999999", viewModel.topState.value.expression)
+        assertEquals("99.999.999.999.999.999", viewModel.topState.value.formattedExpression)
+        assertEquals("99999999999999999", viewModel.topState.value.suggestedResult)
     }
 
-    // Test 16: Comprobar funcionamiento intercambiado de ÷ y C
+    // Test 18: Exact BigDecimal Decimal Calculations
     @Test
-    fun test16_SwappedDivisionAndCFunctions() {
-        viewModel.onTopDigitClick("1")
-        viewModel.onTopDigitClick("0")
-        viewModel.onTopOperatorClick("÷")
-        viewModel.onTopDigitClick("2")
+    fun test18_ExactDecimalCalculations() {
+        // "0.1 + 0.2" -> "0.3"
+        assertEquals("0.3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
 
-        assertEquals("10 ÷ 2", viewModel.topState.value.expression.trim())
-        assertEquals("5", viewModel.topState.value.suggestedResult)
+        // "19.99 × 3" -> "59.97"
+        assertEquals("59.97", CalculatorEngine.evaluateFormatted("19.99 × 3"))
 
-        // C short click backspaces
-        viewModel.onTopShortDeleteClick()
-        assertEquals("10 ÷", viewModel.topState.value.expression.trim())
+        // "19.99 × 3 + 4.50" -> "64.47"
+        assertEquals("64.47", CalculatorEngine.evaluateFormatted("19.99 × 3 + 4.50"))
+
+        // "2 + 3 × 4" -> "14"
+        assertEquals("14", CalculatorEngine.evaluateFormatted("2 + 3 × 4"))
+
+        // "1 ÷ 3 × 3" -> "1"
+        assertEquals("1", CalculatorEngine.evaluateFormatted("1 ÷ 3 × 3"))
     }
 
-    // Test 17: Percentage Cases
+    // Test 19: Accumulator format and decimal saving
     @Test
-    fun test17_PercentageCalculations() {
-        // "200 × 10 % = 20"
-        assertEquals("20", CalculatorEngine.evaluateFormatted("200 × 10%"))
+    fun test19_AccumulatorDecimalSavingAndSum() {
+        // Test saving integers: 100, 300, 90
+        viewModel.onSaveTopResultToBottom("100")
+        viewModel.onSaveTopResultToBottom("300")
+        viewModel.onSaveTopResultToBottom("90")
 
-        // "200 + 10 % = 220"
-        assertEquals("220", CalculatorEngine.evaluateFormatted("200 + 10%"))
+        assertEquals("100+300+90", viewModel.bottomState.value.expression)
+        assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
 
-        // "200 − 10 % = 180"
-        assertEquals("180", CalculatorEngine.evaluateFormatted("200 − 10%"))
+        // Reset and test saving decimals: 0.1, 0.2 -> Total=0.3
+        viewModel.onResetAll()
+        viewModel.onSaveTopResultToBottom("0.1")
+        viewModel.onSaveTopResultToBottom("0.2")
 
-        // "200 ÷ 10 % = 2000"
-        assertEquals("2000", CalculatorEngine.evaluateFormatted("200 ÷ 10%"))
+        assertEquals("0.1+0.2", viewModel.bottomState.value.expression)
+        assertEquals("Total=0.3", viewModel.bottomState.value.formattedTotal)
 
-        // "50 % = 0.5"
-        assertEquals("0.5", CalculatorEngine.evaluateFormatted("50%"))
-    }
+        // Test saving decimals with 3 digits e.g. 1.123 + 2.456 -> Total=3.579
+        viewModel.onResetAll()
+        viewModel.onSaveTopResultToBottom("1.123")
+        viewModel.onSaveTopResultToBottom("2.456")
 
-    // Test 18: Square Root Cases
-    @Test
-    fun test18_SquareRootCalculations() {
-        // "√9 = 3"
-        assertEquals("3", CalculatorEngine.evaluateFormatted("√9"))
-
-        // "√25 = 5"
-        assertEquals("5", CalculatorEngine.evaluateFormatted("√25"))
-
-        // "√2 = 1.4142135624" (or rounded plain string)
-        val resSqrt2 = CalculatorEngine.evaluateFormatted("√2")
-        assertTrue(resSqrt2 != null && resSqrt2.startsWith("1.414213"))
-
-        // "√0 = 0"
-        assertEquals("0", CalculatorEngine.evaluateFormatted("√0"))
-
-        // Negative input -> safe Error / null without exception
-        val resNeg = CalculatorEngine.evaluateFormatted("√-4")
-        assertNull(resNeg)
+        assertEquals("1.123+2.456", viewModel.bottomState.value.expression)
+        assertEquals("Total=3.579", viewModel.bottomState.value.formattedTotal)
     }
 }

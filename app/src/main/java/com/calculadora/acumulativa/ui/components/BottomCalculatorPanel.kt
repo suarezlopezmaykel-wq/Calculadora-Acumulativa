@@ -2,9 +2,7 @@ package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,8 +28,6 @@ import com.calculadora.acumulativa.domain.BottomCalculatorState
 @Composable
 fun BottomCalculatorPanel(
     state: BottomCalculatorState,
-    onOperatorClick: (String) -> Unit,
-    onEqualsClick: () -> Unit,
     btnHeight: Dp = 48.dp,
     btnFontSize: TextUnit = 20.sp,
     modifier: Modifier = Modifier
@@ -88,27 +84,21 @@ fun BottomCalculatorPanel(
         ) {
             // Expression Line (Cumulative expression & saved items)
             Text(
-                text = if (state.expression.isBlank()) "0" else state.expression,
+                text = if (state.formattedExpression.isBlank()) "0" else state.formattedExpression,
                 color = Color(0xFFA7F3D0),
                 fontSize = if (btnHeight > 50.dp) 22.sp else 18.sp,
-                maxLines = 2,
+                maxLines = 4,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            // Provisional / Fixed Result Line
-            val resultDisplay = when {
-                state.isFixed -> "Total fijado = ${state.fixedTotal}"
-                state.suggestedTotal != null -> "Total provisional = ${state.suggestedTotal}"
-                else -> "Total = 0"
-            }
-
+            // Total Line: exact requirement "Total=..." without spaces or "provisional" or divider line
             Text(
-                text = resultDisplay,
-                color = if (state.isFixed) Color(0xFF34D399) else Color(0xFF6EE7B7),
+                text = state.formattedTotal,
+                color = Color(0xFF34D399),
                 fontSize = if (btnHeight > 50.dp) 26.sp else 22.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
@@ -117,31 +107,5 @@ fun BottomCalculatorPanel(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Green Operators Row (+ − × ÷)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
-            CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
-            CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
-            CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, fontSize = btnFontSize, height = btnHeight)
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Equals Button = to Fix Cumulative Total
-        CalcButton(
-            text = "=",
-            onClick = onEqualsClick,
-            modifier = Modifier.fillMaxWidth(),
-            style = GlassButtonStyle.EQUALS_GREEN,
-            fontSize = btnFontSize,
-            height = btnHeight,
-            enabled = state.suggestedTotal != null && !state.isFixed
-        )
     }
 }

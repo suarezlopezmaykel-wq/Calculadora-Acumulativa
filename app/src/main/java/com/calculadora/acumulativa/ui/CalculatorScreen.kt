@@ -91,10 +91,7 @@ fun CalculatorScreen(
 
                 BottomCalculatorPanel(
                     state = bottomState,
-                    onOperatorClick = { viewModel.onBottomOperatorClick(it) },
-                    onEqualsClick = { viewModel.onBottomEqualsClick() },
                     btnHeight = btnHeight,
-                    btnFontSize = btnFontSize,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

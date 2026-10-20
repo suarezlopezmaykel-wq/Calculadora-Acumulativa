@@ -6,11 +6,97 @@ import kotlin.math.sqrt
 
 object CalculatorEngine {
 
+    fun formatIntegerString(intStr: String): String {
+        if (intStr.isEmpty()) return ""
+        val sb = StringBuilder()
+        var count = 0
+        for (i in intStr.length - 1 downTo 0) {
+            val c = intStr[i]
+            if (c.isDigit()) {
+                if (count > 0 && count % 3 == 0) {
+                    sb.append('.')
+                }
+                sb.append(c)
+                count++
+            } else {
+                sb.append(c)
+            }
+        }
+        return sb.reverse().toString()
+    }
+
+    /**
+     * Formats a raw number string (e.g. "1234.56" or "99999999999999999"):
+     * Uses dot (.) for thousands separator in integer part and dot (.) for decimal point.
+     * Example: "1234.56" -> "1.234.56"
+     * Example: "1000" -> "1.000"
+     * Example: "0.3" -> "0.3"
+     * Example: "99999999999999999" -> "99.999.999.999.999.999"
+     */
+    fun formatNumberString(token: String): String {
+        if (token.isBlank()) return token
+
+        var prefix = ""
+        var suffix = ""
+        var numStr = token
+
+        if (numStr.startsWith("√")) {
+            prefix = "√"
+            numStr = numStr.substring(1)
+        }
+        if (numStr.endsWith("%")) {
+            suffix = "%"
+            numStr = numStr.dropLast(1)
+        }
+
+        if (numStr.isEmpty()) return token
+
+        val isNegative = numStr.startsWith("-") || numStr.startsWith("−")
+        if (isNegative) {
+            numStr = numStr.substring(1)
+        }
+
+        val parts = numStr.split(".", limit = 2)
+        val intPart = parts[0]
+        val decPart = if (parts.size > 1) parts[1] else null
+
+        val formattedInt = formatIntegerString(intPart)
+
+        val signStr = if (isNegative) "-" else ""
+        val formattedNum = if (decPart != null) {
+            "$signStr$formattedInt.$decPart"
+        } else {
+            "$signStr$formattedInt"
+        }
+
+        return "$prefix$formattedNum$suffix"
+    }
+
+    fun formatBigDecimal(bd: BigDecimal): String {
+        val scaled = bd.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
+        val plain = scaled.toPlainString()
+        if (plain == "-0") return "0"
+        return formatNumberString(plain)
+    }
+
     fun formatNumber(value: Double): String {
         if (value.isNaN() || value.isInfinite()) return "Error"
-        val bd = BigDecimal.valueOf(value).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
-        val plain = bd.toPlainString()
-        return if (plain == "-0") "0" else plain
+        return formatBigDecimal(BigDecimal.valueOf(value))
+    }
+
+    fun formatExpressionForDisplay(expression: String): String {
+        if (expression.isBlank()) return ""
+        val tokens = tokenize(expression)
+        val sb = StringBuilder()
+        for (i in tokens.indices) {
+            val token = tokens[i]
+            if (isOperatorToken(token)) {
+                sb.append(" ").append(token).append(" ")
+            } else {
+                sb.append(formatNumberString(token))
+            }
+        }
+        return sb.toString().trim()
     }
 
     fun isOperator(char: Char): Boolean {
@@ -26,10 +112,6 @@ object CalculatorEngine {
         }
     }
 
-    /**
-     * Tokenizes a mathematical expression into numbers, percentages, square roots, and operators.
-     * Supports negative numbers if at start, after an operator, or inside square root.
-     */
     fun tokenize(expression: String): List<String> {
         val tokens = mutableListOf<String>()
         val sb = StringBuilder()
@@ -44,7 +126,6 @@ object CalculatorEngine {
             }
 
             if (isOperator(c)) {
-                // Check if minus sign is part of a negative number or negative square root argument
                 val isMinus = (c == '-' || c == '−')
                 val isUnary = isMinus && (tokens.isEmpty() || isOperatorToken(tokens.last())) && (sb.isEmpty() || sb.toString() == "√")
 
@@ -68,63 +149,52 @@ object CalculatorEngine {
         return tokens
     }
 
-    private fun isOperatorToken(token: String): Boolean {
+    fun isOperatorToken(token: String): Boolean {
         return token.length == 1 && isOperator(token[0])
     }
 
-    /**
-     * Parses a token into a Double value.
-     * Handles square root (√) and percentage (%) tokens.
-     */
-    private fun parseTokenValue(token: String, leftAccumulatedValue: Double?, prevOperator: Char?): Double? {
+    private fun parseTokenValueBigDecimal(token: String, leftAccumulatedValue: BigDecimal?, prevOperator: Char?): BigDecimal? {
         var text = token
 
-        // Check if percentage
         val isPercent = text.endsWith('%')
         if (isPercent) {
             text = text.dropLast(1)
         }
 
-        // Check if square root
         val rawNum = if (text.startsWith('√')) {
             val argStr = text.substring(1)
             val argVal = argStr.toDoubleOrNull() ?: return null
-            if (argVal < 0) return null // Negative square root error
-            sqrt(argVal)
+            if (argVal < 0) return null
+            val sqrtVal = sqrt(argVal)
+            BigDecimal.valueOf(sqrtVal)
         } else {
-            text.toDoubleOrNull() ?: return null
+            text.toBigDecimalOrNull() ?: return null
         }
 
         if (isPercent) {
+            val percentFactor = rawNum.divide(BigDecimal("100"), 16, RoundingMode.HALF_UP)
             return if (prevOperator == '+' || prevOperator == '−' || prevOperator == '-') {
                 if (leftAccumulatedValue != null) {
-                    leftAccumulatedValue * (rawNum / 100.0)
+                    leftAccumulatedValue * percentFactor
                 } else {
-                    rawNum / 100.0
+                    percentFactor
                 }
             } else {
-                rawNum / 100.0
+                percentFactor
             }
         }
 
         return rawNum
     }
 
-    /**
-     * Evaluates a tokenized expression respecting operator precedence (× and ÷ before + and −).
-     * Handles %, √, division by zero, and negative square roots safely.
-     * Returns null if evaluation fails.
-     */
-    fun evaluate(expression: String): Double? {
+    fun evaluateBigDecimal(expression: String): BigDecimal? {
         val tokens = tokenize(expression)
         if (tokens.isEmpty()) return null
 
-        // If expression ends with an operator, it is incomplete
         if (isOperatorToken(tokens.last())) {
             return null
         }
 
-        // First pass: build token list and evaluate operators with precedence
         val rawNumbers = mutableListOf<String>()
         val operators = mutableListOf<Char>()
 
@@ -141,34 +211,29 @@ object CalculatorEngine {
 
         if (rawNumbers.size != operators.size + 1) return null
 
-        // Evaluate numbers with context (left accumulated value for percentage)
-        // First, calculate left-to-right values for + / - percentage context
-        val parsedValues = mutableListOf<Double>()
+        val parsedValues = mutableListOf<BigDecimal>()
+        var currentAcc: BigDecimal? = null
 
-        // Helper to evaluate up to index
-        var currentAcc: Double? = null
         for (i in rawNumbers.indices) {
             val prevOp = if (i > 0) operators[i - 1] else null
-            val valNum = parseTokenValue(rawNumbers[i], currentAcc, prevOp) ?: return null
+            val valNum = parseTokenValueBigDecimal(rawNumbers[i], currentAcc, prevOp) ?: return null
             parsedValues.add(valNum)
 
-            // Update currentAcc for additive percentage context
             if (i == 0) {
                 currentAcc = valNum
             } else {
                 when (operators[i - 1]) {
-                    '+' -> currentAcc = (currentAcc ?: 0.0) + valNum
-                    '−', '-' -> currentAcc = (currentAcc ?: 0.0) - valNum
-                    '×' -> currentAcc = (currentAcc ?: 0.0) * valNum
+                    '+' -> currentAcc = (currentAcc ?: BigDecimal.ZERO) + valNum
+                    '−', '-' -> currentAcc = (currentAcc ?: BigDecimal.ZERO) - valNum
+                    '×' -> currentAcc = (currentAcc ?: BigDecimal.ZERO) * valNum
                     '÷' -> {
-                        if (valNum == 0.0) return null
-                        currentAcc = (currentAcc ?: 0.0) / valNum
+                        if (valNum.compareTo(BigDecimal.ZERO) == 0) return null
+                        currentAcc = (currentAcc ?: BigDecimal.ZERO).divide(valNum, 16, RoundingMode.HALF_UP)
                     }
                 }
             }
         }
 
-        // First pass for precedence: multiply and divide
         val numbers = parsedValues.toMutableList()
         val ops = operators.toMutableList()
 
@@ -181,8 +246,8 @@ object CalculatorEngine {
                 val res = if (op == '×') {
                     left * right
                 } else {
-                    if (right == 0.0) return null // Division by zero
-                    left / right
+                    if (right.compareTo(BigDecimal.ZERO) == 0) return null
+                    left.divide(right, 16, RoundingMode.HALF_UP)
                 }
                 numbers[i] = res
                 numbers.removeAt(i + 1)
@@ -192,7 +257,6 @@ object CalculatorEngine {
             }
         }
 
-        // Second pass: add and subtract
         var result = numbers[0]
         for (j in ops.indices) {
             val op = ops[j]
@@ -207,8 +271,13 @@ object CalculatorEngine {
         return result
     }
 
+    fun evaluate(expression: String): Double? {
+        val bd = evaluateBigDecimal(expression) ?: return null
+        return bd.toDouble()
+    }
+
     fun evaluateFormatted(expression: String): String? {
-        val valResult = evaluate(expression) ?: return null
-        return formatNumber(valResult)
+        val bdResult = evaluateBigDecimal(expression) ?: return null
+        return bdResult.setScale(10, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
     }
 }

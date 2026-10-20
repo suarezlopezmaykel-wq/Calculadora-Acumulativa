@@ -68,12 +68,12 @@ class CalculatorViewModel : ViewModel() {
         _topState.update { TopCalculatorState() }
     }
 
-    // Bottom Calculator Actions
+    // Bottom Calculator Actions (Kept for compatibility)
     fun onBottomOperatorClick(op: String) {
-        _bottomState.update { it.applyOperator(op) }
+        // Lower manual operators removed
     }
 
     fun onBottomEqualsClick() {
-        _bottomState.update { it.fixTotal() }
+        // Lower equals button removed
     }
 }

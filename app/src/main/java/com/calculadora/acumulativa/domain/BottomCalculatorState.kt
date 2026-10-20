@@ -1,65 +1,54 @@
 package com.calculadora.acumulativa.domain
 
+import java.math.BigDecimal
+
 data class BottomCalculatorState(
-    val expression: String = "",
-    val fixedTotal: String? = null,
-    val isFixed: Boolean = false
+    val savedItems: List<String> = emptyList()
 ) {
     /**
-     * Provisional / suggested total calculated automatically.
+     * Expression string formatted with '+' signs between saved items for internal logic.
+     * Example: "100+300+90" or "0.1+0.2"
      */
-    val suggestedTotal: String?
-        get() {
-            if (isFixed) return fixedTotal
-            if (expression.isBlank()) return null
-            return CalculatorEngine.evaluateFormatted(expression)
+    val expression: String
+        get() = savedItems.joinToString("+")
+
+    /**
+     * Formatted expression with thousands separators for display.
+     * Example: "1.000+3.000+90" or "0.3+59.97"
+     */
+    val formattedExpression: String
+        get() = savedItems.joinToString("+") { item ->
+            CalculatorEngine.formatNumberString(item)
         }
+
+    /**
+     * Exact decimal total accumulated from saved items.
+     */
+    val totalBigDecimal: BigDecimal
+        get() {
+            var sum = BigDecimal.ZERO
+            for (item in savedItems) {
+                val bd = item.toBigDecimalOrNull() ?: BigDecimal.ZERO
+                sum += bd
+            }
+            return sum
+        }
+
+    /**
+     * Formatted total string.
+     * Example: "Total=490" or "Total=1.234.56"
+     */
+    val formattedTotal: String
+        get() = "Total=" + CalculatorEngine.formatNumberString(totalBigDecimal.toPlainString())
 
     fun addSavedResult(result: String): BottomCalculatorState {
         val trimmedRes = result.trim()
         if (trimmedRes.isEmpty() || trimmedRes == "Error") return this
 
-        val trimmedExpr = expression.trim()
-        val newExpr = when {
-            trimmedExpr.isEmpty() -> trimmedRes
-            CalculatorEngine.isOperator(trimmedExpr.last()) -> "$trimmedExpr $trimmedRes"
-            else -> "$trimmedExpr + $trimmedRes"
-        }
+        // Save raw exact number string without thousand dots
+        val newItems = savedItems + trimmedRes
 
-        return copy(
-            expression = newExpr,
-            isFixed = false,
-            fixedTotal = null
-        )
-    }
-
-    fun applyOperator(op: String): BottomCalculatorState {
-        val trimmedExpr = expression.trim()
-        if (trimmedExpr.isEmpty()) {
-            return copy(expression = "0 $op ", isFixed = false)
-        }
-
-        val lastChar = trimmedExpr.last()
-        val newExpr = if (CalculatorEngine.isOperator(lastChar)) {
-            // Replace pending sign (Sign correction requirement 5)
-            trimmedExpr.dropLast(1).trimEnd() + " " + op + " "
-        } else {
-            "$trimmedExpr $op "
-        }
-
-        return copy(
-            expression = newExpr,
-            isFixed = false
-        )
-    }
-
-    fun fixTotal(): BottomCalculatorState {
-        val res = CalculatorEngine.evaluateFormatted(expression) ?: return this
-        if (res == "Error") return this
-        return copy(
-            fixedTotal = res,
-            isFixed = true
-        )
+        return copy(savedItems = newItems)
     }
 
     fun clear(): BottomCalculatorState {

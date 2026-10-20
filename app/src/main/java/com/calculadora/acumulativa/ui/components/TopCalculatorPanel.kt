@@ -141,7 +141,7 @@ fun TopCalculatorPanel(
         ) {
             // Expression Line
             Text(
-                text = if (state.expression.isBlank()) "0" else state.expression,
+                text = if (state.formattedExpression.isBlank()) "0" else state.formattedExpression,
                 color = Color(0xFFCBD5E1),
                 fontSize = if (btnHeight > 50.dp) 24.sp else 20.sp,
                 maxLines = 1,
@@ -154,8 +154,8 @@ fun TopCalculatorPanel(
 
             // Result Line
             val resultDisplay = when {
-                state.isFixed -> "= ${state.fixedResult} (Fijado)"
-                state.suggestedResult != null -> "= ${state.suggestedResult}"
+                state.isFixed -> state.fixedResult ?: ""
+                state.suggestedResult != null -> state.suggestedResult ?: ""
                 else -> ""
             }
 
