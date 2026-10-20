@@ -71,6 +71,7 @@ fun CalculatorScreen(
                     state = topState,
                     onDigitClick = { viewModel.onTopDigitClick(it) },
                     onOperatorClick = { viewModel.onTopOperatorClick(it) },
+                    onCommaClick = { viewModel.onTopCommaClick() },
                     onDotClick = { viewModel.onTopDotClick() },
                     onEqualsClick = { viewModel.onTopEqualsClick() },
                     onPercentClick = { viewModel.onTopPercentClick() },

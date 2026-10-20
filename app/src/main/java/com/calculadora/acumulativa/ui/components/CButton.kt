@@ -38,8 +38,8 @@ fun CButton(
     height: Dp = 48.dp,
     fontSize: TextUnit = 20.sp,
     onShortClick: () -> Unit,
-    onLongPress1Sec: () -> Unit = {},
-    onLongPress2Sec: () -> Unit = onLongPress1Sec
+    onLongPress1Sec: (() -> Unit)? = null,
+    onLongPress2Sec: (() -> Unit)? = null
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
@@ -91,10 +91,13 @@ fun CButton(
                         longPressTriggered = false
 
                         timerJob = coroutineScope.launch {
-                            delay(1000L) // Exact 1000 ms (1 second) threshold
+                            delay(1000L) // Hold C button for 1 second (1000 ms) clears both screens
                             longPressTriggered = true
-                            onLongPress1Sec()
-                            onLongPress2Sec()
+                            if (onLongPress1Sec != null) {
+                                onLongPress1Sec()
+                            } else {
+                                onLongPress2Sec?.invoke()
+                            }
                         }
 
                         tryAwaitRelease()
@@ -103,6 +106,7 @@ fun CButton(
                         timerJob = null
                         isPressed = false
 
+                        // Executed only if released before 1000ms long press threshold
                         if (!longPressTriggered) {
                             onShortClick()
                         }

@@ -35,7 +35,8 @@ fun TopCalculatorPanel(
     state: TopCalculatorState,
     onDigitClick: (String) -> Unit,
     onOperatorClick: (String) -> Unit,
-    onDotClick: () -> Unit,
+    onCommaClick: () -> Unit = {},
+    onDotClick: () -> Unit = {},
     onEqualsClick: () -> Unit,
     onPercentClick: () -> Unit = {},
     onSquareRootClick: () -> Unit = {},
@@ -213,7 +214,7 @@ fun TopCalculatorPanel(
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        // Row 4: C, 0, ., +
+        // Row 4: C, 0, [. ,], +
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -226,7 +227,16 @@ fun TopCalculatorPanel(
                 onLongPress2Sec = onResetAllClick
             )
             CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
-            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+
+            // Split dot/comma key slot horizontally into two buttons: "." and "," occupying exact same width and height
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+                CalcButton(",", { onCommaClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER, fontSize = btnFontSize, height = btnHeight)
+            }
+
             CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, fontSize = btnFontSize, height = btnHeight)
         }
 

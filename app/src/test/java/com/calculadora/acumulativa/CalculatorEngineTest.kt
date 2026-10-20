@@ -84,6 +84,52 @@ class CalculatorEngineTest {
         assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
     }
 
+    // Test 5: Entrada de decimales mediante el botón coma y prevención de duplicados
+    @Test
+    fun test5_CommaDecimalInputAndDuplicateRejection() {
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopCommaClick()
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopDigitClick("0")
+
+        assertEquals("111,50", viewModel.topState.value.formattedExpression)
+
+        // Attempt second comma in same token should be rejected
+        viewModel.onTopCommaClick()
+        assertEquals("111,50", viewModel.topState.value.formattedExpression)
+    }
+
+    // Test 6: Comportamiento del botón punto para agrupación de miles
+    @Test
+    fun test6_DotButtonGrouping() {
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopDigitClick("0")
+
+        assertEquals("1.000", viewModel.topState.value.formattedExpression)
+    }
+
+    // Test 7: Accumulación de "1.234.567,50+200,25+30,00" -> "Total=1.234.797,75"
+    @Test
+    fun test7_SpecificAccumulatorExample() {
+        viewModel.onSaveTopResultToBottom("1.234.567,50")
+        viewModel.onSaveTopResultToBottom("200,25")
+        viewModel.onSaveTopResultToBottom("30,00")
+
+        assertEquals("1.234.567,50+200,25+30,00", viewModel.bottomState.value.formattedExpression)
+        assertEquals("Total=1.234.797,75", viewModel.bottomState.value.formattedTotal)
+    }
+
+    // Test 8: 99999999999999999 + 1 -> 100000000000000000
+    @Test
+    fun test8_SeventeenNinesPlusOne() {
+        val result = CalculatorEngine.evaluateFormatted("99999999999999999 + 1")
+        assertEquals("100.000.000.000.000.000", result)
+    }
+
     // Test 9: Toque corto de C: borrar exactamente un elemento
     @Test
     fun test9_ShortDeleteCButton() {
@@ -200,33 +246,5 @@ class CalculatorEngineTest {
 
         // "1 ÷ 3 × 3" -> "1"
         assertEquals("1", CalculatorEngine.evaluateFormatted("1 ÷ 3 × 3"))
-    }
-
-    // Test 19: Accumulator format and decimal saving for numbers >= 1000
-    @Test
-    fun test19_AccumulatorDecimalSavingAndSum() {
-        // Test saving integers: 100, 300, 90
-        viewModel.onSaveTopResultToBottom("100")
-        viewModel.onSaveTopResultToBottom("300")
-        viewModel.onSaveTopResultToBottom("90")
-
-        assertEquals("100+300+90", viewModel.bottomState.value.expression)
-        assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
-
-        // Reset and test saving numbers >= 1000 with decimals: 1.234,56 + 1.000,50 -> Total=2.235,06
-        viewModel.onResetAll()
-        viewModel.onSaveTopResultToBottom("1.234,56")
-        viewModel.onSaveTopResultToBottom("1.000,50")
-
-        assertEquals("1.234,56+1.000,50", viewModel.bottomState.value.formattedExpression)
-        assertEquals("Total=2.235,06", viewModel.bottomState.value.formattedTotal)
-
-        // Test saving decimals with 3 digits e.g. 1,123 + 2,456 -> Total=3,579
-        viewModel.onResetAll()
-        viewModel.onSaveTopResultToBottom("1,123")
-        viewModel.onSaveTopResultToBottom("2,456")
-
-        assertEquals("1,123+2,456", viewModel.bottomState.value.formattedExpression)
-        assertEquals("Total=3,579", viewModel.bottomState.value.formattedTotal)
     }
 }

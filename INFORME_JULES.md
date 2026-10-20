@@ -1,104 +1,106 @@
-# INFORME_JULES.md - Calculadora Acumulativa Android
+# INFORME_JULES.md - CALCULADORA ACUMULATIVA ANDROID
 
-Este informe documenta las correcciones técnicas de precisión numérica mediante `BigDecimal`, el formato unívoco de miles con puntos y decimales con puntos (o comas en presentación), la actualización del temporizador del botón C a 1.000 ms (1 segundo), la simplificación del acumulador inferior y los resultados de las pruebas.
-
----
-
-## 1. Diagnóstico del Problema Original de Precisión
-
-### Causa
-El uso previo de la representación de punto flotante de 64 bits (`Double` de IEEE 754) limitaba la mantisa a 15-17 dígitos significativos.
-Al introducir diecisiete nueves (`99999999999999999`), el número excedía los bits de la mantisa de `Double` y se redondeaba internamente al entero representable más cercano ($10^{17} = 100.000.000.000.000.000$), distorsionando el valor por una unidad.
-
-### Solución
-Se migró la evaluación aritmética interna a `BigDecimal` con `RoundingMode.HALF_UP` en `CalculatorEngine.kt`.
-- `99999999999999999` mantiene la precisión exacta de sus 17 dígitos.
-- `99999999999999999 + 1` evalúa con exactitud a `100.000.000.000.000.000`.
-- Las operaciones con decimales monetarios (ej. `100.20 + 11.30` → `111.50`) no pierden el cero final ni redondean erróneamente.
+**Repositorio:** `suarezlopezmaykel-wq/Calculadora-Acumulativa`
+**Rama de trabajo:** `jules-1836771924151827102-d1ba14d4`
+**Autor:** Jules (Agente IA Software Engineer)
+**Estado de la compilación:** EXITOSA (`BUILD SUCCESSFUL`)
 
 ---
 
-## 2. Formato Numérico y Separadores de Miles y Decimales
+## 1. RESUMEN DE MODIFICACIONES Y PROBLEMAS CORREGIDOS
 
-- **Separador de miles**: Punto (`.`) agrupando de 3 en 3 dígitos desde la derecha (`99.999.999.999.999.999`, `1.234.567`).
-- **Separador decimal**: Punto (`.`) para la representación decimal limpia unívoca (`0.3`, `59.97`, `111.50`), evitando ambigüedades con los agrupadores de miles.
-- **Desformateo unívoco**: `unformatNumberString` elimina los puntos de miles y preserva el punto decimal interno para `BigDecimal` sin alterar el valor aritmético ni corromper números de 3 decimales (`1.123` o `2.456`).
+### A. Regla Numérica Definitiva (Formato Español)
+- **Definición:**
+  - Punto (`.`) como separador de miles: `1.000`, `12.500`, `1.234.567`, `99.999.999.999.999.999`.
+  - Coma (`,`) como separador decimal: `0,5`, `19,99`, `111,50`.
+  - Combinado de miles y decimales: `1.234.567,89`.
+  - Los ceros decimales monetarios finales se conservan (ejemplo: `111,50`, `30,00`, `1.234,50`).
+- **Implementación interna:**
+  - `CalculatorEngine.kt` utiliza `BigDecimal` de forma centralizada con la función `unformatNumberString()` que limpia los puntos de miles y convierte las comas en puntos decimales estándar (`1.234.567,50` -> `1234567.50`) antes de ser procesados por `BigDecimal`.
 
----
+### B. Botones de Punto (`.`) y Coma (`,`) en el Teclado Superior
+- **Modificación UI:** En `TopCalculatorPanel.kt`, el botón original de punto decimal se dividió horizontalmente en dos botones de idéntico estilo y altura (`.` y `,`) compartiendo exactamente el ancho original.
+- **Lógica:**
+  - Botón Coma (`,`): Permite ingresar el separador decimal (ej. `111,50`). Si se presiona al inicio o tras un operador, autocompleta con `0,`. Rechaza comas duplicadas en un mismo número.
+  - Botón Punto (`.`): Permite ingresar puntos de miles explícitos o formatear el número.
 
-## 3. Botón C: Reducción del Umbral a 1000 ms (1 Segundo)
+### C. Precisión de 17 Nueve y Operaciones Exactas
+- Entrada `99999999999999999` mantiene sus 17 dígitos exactos y se visualiza como `99.999.999.999.999.999`.
+- `99999999999999999 + 1` da exactamente `100.000.000.000.000.000`.
+- `100,20 + 11,30` da `111,50`.
+- `19,99 × 3` da `59,97`.
+- `0,1 + 0,2` da `0,3`.
+- `2 + 3 × 4` da `14`.
+- División por cero (`10 ÷ 0`) devuelve `null` / `Error` controlado sin provocaciones de crash.
 
-En `CButton.kt`:
-- Se modificó la corrutina de detección a `delay(1000L)` (1 segundo / 1000 milisegundos).
-- Mantiene la detección corta para borrado de un elemento y la cancelación del toque corto al activarse la pulsación de 1000 ms para borrado total de ambas pantallas y reinicio del acumulador.
+### D. Preservación de Formato al Guardar en el Acumulador
+- Al presionar «Guardar cálculo», los importes guardados conservan su representación visible exacta (`1.234.567,50`, `200,25`, `30,00`).
+- Expresión acumulada visible: `1.234.567,50+200,25+30,00`.
+- Total acumulado alineado a la derecha: `Total=1.234.797,75`.
+- Prevención de duplicados: se añade una sola vez por cada acción del usuario.
 
----
-
-## 4. Calculadora Superior y Acumulador Inferior
-
-- **Pantalla Superior**: Muestra directamente el resultado formateado al presionar `=`, ocultando el prefijo `=` y la etiqueta `(Fijado)`.
-- **Acumulador Inferior**:
-  - Se eliminaron los botones inferiores de operaciones manuales (`+`, `−`, `×`, `÷`, `=`).
-  - Muestra los importes guardados alineados a la derecha (ej. `100+300+90`).
-  - Muestra la línea del total de forma estricta: `Total=490` (sin la palabra `provisional` y sin rayas separadoras).
-
----
-
-## 5. Firmas Públicas Conservadas en `CalculatorEngine`
-
-| Firma | Estado | Nota |
-|---|---|---|
-| `formatNumber(value: Double): String` | **CONSERVADA** | Redirige a `formatBigDecimal`. |
-| `isOperator(char: Char): Boolean` | **CONSERVADA** | Sin cambios. |
-| `normalizeOperator(char: Char): Char` | **CONSERVADA** | Sin cambios. |
-| `tokenize(expression: String): List<String>` | **CONSERVADA** | Sin cambios. |
-| `evaluate(expression: String): Double?` | **CONSERVADA** | Evalúa vía `BigDecimal` y retorna `Double?`. |
-| `evaluateFormatted(expression: String): String?` | **CONSERVADA** | Retorna la cadena en formato decimal. |
-| `evaluateBigDecimal(expression: String): BigDecimal?` | **AÑADIDA** | Evaluación exacta de precisión arbitraria. |
-
----
-
-## 6. Lista Exacta de Archivos Modificados
-
-1. `app/src/main/java/com/calculadora/acumulativa/domain/CalculatorEngine.kt`: Lógica `BigDecimal`, formateo unívoco con punto (miles) y decimales, y `unformatNumberString`.
-2. `app/src/main/java/com/calculadora/acumulativa/domain/TopCalculatorState.kt`: Exposición de `formattedExpression`.
-3. `app/src/main/java/com/calculadora/acumulativa/domain/BottomCalculatorState.kt`: Acumulador automático y formateo `Total=...`.
-4. `app/src/main/java/com/calculadora/acumulativa/ui/components/CButton.kt`: Ajuste del temporizador a 1000 ms (1 segundo).
-5. `app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt`: Remoción del prefijo `=` y `(Fijado)`.
-6. `app/src/main/java/com/calculadora/acumulativa/ui/components/BottomCalculatorPanel.kt`: Remoción de botones de operación inferiores.
-7. `app/src/main/java/com/calculadora/acumulativa/ui/CalculatorScreen.kt`: Insets de seguridad para la barra de estado.
-8. `app/src/test/java/com/calculadora/acumulativa/CalculatorEngineTest.kt`: Tests unitarios de 17 dígitos, 1000 ms, decimales monetarios y formateo.
-9. `INFORME_JULES.md`: Documentación técnica.
+### E. Corrección del Botón C a 1 Segundo (1000 ms)
+- Ajuste del temporizador a `1000L` milisegundos en `CButton.kt`.
+- Corrección de callbacks dobles: una única acción limpia ambas pantallas.
+- Al soltar tras 1 segundo de pulsación, se inhibe el borrado corto.
 
 ---
 
-## 7. Pruebas Ejecutadas y Resultados Reales
+## 2. ESTRUCTURA DE ARCHIVOS MODIFICADOS
 
-| # | Prueba / Verificación | Estado | Resultado |
-|---|---|---|---|
-| 1 | 17 nueves `99999999999999999` mantiene exactitud | **SUPERADA** | Mantiene los 17 dígitos exactos sin redondear. |
-| 2 | Formato de miles: `99.999.999.999.999.999` | **SUPERADA** | Formateado con puntos. |
-| 3 | Formato decimal monetario: `100.20 + 11.30` → `111.50` | **SUPERADA** | Mantiene dos decimales y cero final. |
-| 4 | Operación decimal: `0.1 + 0.2` → `0.3` | **SUPERADA** | Test 18 en JUnit. |
-| 5 | Operación decimal: `19.99 × 3` → `59.97` | **SUPERADA** | Test 18 en JUnit. |
-| 6 | Acumulador: `100+300+90` y `Total=490` | **SUPERADA** | Formato exacto alineado a la derecha. |
-| 7 | Botón C: borrado total al sostener 1000 ms (1 segundo) | **SUPERADA** | `delay(1000L)` en corrutina de Compose. |
-| 8 | Ejecución de suite de unit tests (`./gradlew test`) | **SUPERADA** | 100% de éxito en Gradle. |
-| 9 | Compilación completa de APK (`./gradlew assembleDebug`) | **SUPERADA** | BUILD SUCCESSFUL en Gradle. |
-
----
-
-## 8. Aclaración sobre Dispositivo Físico
-
-Se aclara que la comprobación visual manual en una tablet o teléfono físico real no se realizó por falta de hardware conectado o emulador GUI en el contenedor. La app es **100% offline** y libre de permisos de red.
+| Archivo | Función |
+| :--- | :--- |
+| `app/src/main/java/com/calculadora/acumulativa/domain/CalculatorEngine.kt` | Motor de cálculo exacto con `BigDecimal` y formateador de locale español (`.` miles, `,` decimales). |
+| `app/src/main/java/com/calculadora/acumulativa/domain/TopCalculatorState.kt` | Estado de la calculadora superior con soporte para `appendComma()` y `appendDot()`. |
+| `app/src/main/java/com/calculadora/acumulativa/domain/BottomCalculatorState.kt` | Estado del acumulador con suma exacta `BigDecimal` y preservación del formato visible. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/CalculatorViewModel.kt` | ViewModel con handlers para coma, punto, guardado de resultados y reinicio general. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt` | UI del panel superior dividiendo la tecla decimal en dos botones `.` y `,`. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/BottomCalculatorPanel.kt` | UI del acumulador inferior alineado a la derecha sin botones manuales adicionales. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/CButton.kt` | Botón C con temporizador de 1000ms e inhibición de borrado corto. |
+| `app/src/test/java/com/calculadora/acumulativa/CalculatorEngineTest.kt` | Suite completa de pruebas unitarias verificando todos los requisitos. |
 
 ---
 
-## 9. Enlaces y Artefactos
+## 3. TABLA DE PRUEBAS EJECUTADAS
 
-- **Rama de trabajo**: `jules-1836771924151827102-d1ba14d4`
-- **Pull Request**: [PR hacia `main`](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/pulls)
-- **Ejecuciones de CI previo**:
-  - [Ejecución 22 - GitHub Actions](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/actions/runs/39307480735) (Artefacto ID `12213578356`)
-  - [Ejecución 23 - GitHub Actions](https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/actions/runs/39309210611)
-- **Ubicación local de la APK compilada**: `app/build/outputs/apk/debug/app-debug.apk`
+Comando ejecutado: `./gradlew test` (15/15 exitosas)
+
+| # | Descripción de la Prueba | Resultado |
+| :-: | :--- | :-: |
+| 1 | Operación superior `"5 + 7 + 6 − 3 = 15"` | PASÓ |
+| 2 | Fijación con `=` e integración con «Guardar cálculo» | PASÓ |
+| 3 | Limpieza automática de la pantalla superior tras guardar | PASÓ |
+| 4 | Acumulación de varios resultados (`100+300+90` -> `Total=490`) | PASÓ |
+| 5 | Entrada decimal con botón coma (`,`) y rechazo de duplicados | PASÓ |
+| 6 | Formateo de miles mediante botón punto (`.`) | PASÓ |
+| 7 | Acumulación del ejemplo exacto `"1.234.567,50+200,25+30,00"` -> `"Total=1.234.797,75"` | PASÓ |
+| 8 | Operación de 17 nueves más uno: `"99999999999999999 + 1"` -> `"100.000.000.000.000.000"` | PASÓ |
+| 9 | Borrado corto con toque en C (elimina exactamente 1 carácter) | PASÓ |
+| 10 | Reinicio total con pulsación de 1 segundo en C | PASÓ |
+| 12 | Control de errores en división por cero e inputs incompletos | PASÓ |
+| 13 | Ausencia de duplicación accidental de resultados guardados | PASÓ |
+| 14 | Botón rojo de salida reinicia estados e invoca cierre | PASÓ |
+| 17 | Precisión de 17 dígitos (`"99999999999999999"` -> `"99.999.999.999.999.999"`) | PASÓ |
+| 18 | Cálculos exactos con decimales en formato español (`100,20 + 11,30 = 111,50`) | PASÓ |
+
+---
+
+## 4. RESULTADO DE COMPILACIÓN Y ARTEFACTO APK
+
+- **Comando de compilación:** `./gradlew assembleDebug`
+- **Resultado:** `BUILD SUCCESSFUL in 2s`
+- **Ubicación del ejecutable APK:** `app/build/outputs/apk/debug/app-debug.apk`
+
+---
+
+## 5. LIMITACIONES EN DISPOSITIVOS FÍSICOS
+
+Las verificaciones se llevaron a cabo en un entorno sandbox desacoplado de hardware con la suite completa de pruebas de Gradle y compilación del APK. No se ha realizado la instalación en un dispositivo Android físico.
+
+---
+
+## 6. ENLACES
+
+- **Informe local:** `INFORME_JULES.md`
+- **Rama git:** `jules-1836771924151827102-d1ba14d4`
+- **Estado PR:** Cambios aplicados y validados directamente sobre la rama de trabajo.

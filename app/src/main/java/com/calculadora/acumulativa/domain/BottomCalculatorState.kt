@@ -6,8 +6,9 @@ data class BottomCalculatorState(
     val savedItems: List<String> = emptyList()
 ) {
     /**
-     * Expression string formatted with '+' signs between saved items for internal logic.
-     * Example: "100+300+90" or "0.1+0.2"
+     * Expression string formatted with '+' signs between saved items.
+     * Preserves visible grouping dots, decimal commas, and trailing zeros.
+     * Example: "1.234.567,50+200,25+30,00"
      */
     val expression: String
         get() = savedItems.joinToString("+") { item ->
@@ -16,7 +17,7 @@ data class BottomCalculatorState(
 
     /**
      * Formatted expression with thousands separators and Spanish decimal comma for display.
-     * Example: "1.000+3.000+90" or "0,1+0,2"
+     * Example: "1.234.567,50+200,25+30,00"
      */
     val formattedExpression: String
         get() = savedItems.joinToString("+") { item ->
@@ -39,7 +40,7 @@ data class BottomCalculatorState(
 
     /**
      * Formatted total string.
-     * Example: "Total=490" or "Total=1.234,56"
+     * Example: "Total=1.234.797,75"
      */
     val formattedTotal: String
         get() = "Total=" + CalculatorEngine.formatBigDecimal(totalBigDecimal)
@@ -48,9 +49,8 @@ data class BottomCalculatorState(
         val trimmedRes = result.trim()
         if (trimmedRes.isEmpty() || trimmedRes == "Error") return this
 
-        // Safely unformat result to preserve exact decimal points
-        val rawNum = CalculatorEngine.unformatNumberString(trimmedRes)
-        val newItems = savedItems + rawNum
+        val formattedRes = CalculatorEngine.formatNumberString(trimmedRes)
+        val newItems = savedItems + formattedRes
 
         return copy(savedItems = newItems)
     }

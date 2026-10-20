@@ -21,6 +21,10 @@ class CalculatorViewModel : ViewModel() {
         _topState.update { it.appendDigit(digit) }
     }
 
+    fun onTopCommaClick() {
+        _topState.update { it.appendComma() }
+    }
+
     fun onTopDotClick() {
         _topState.update { it.appendDot() }
     }
@@ -46,7 +50,7 @@ class CalculatorViewModel : ViewModel() {
     }
 
     fun onResetAll() {
-        // Hold C button for 2 seconds clears both screens and resets accumulator
+        // Hold C button for 1 second clears both screens and resets accumulator
         _topState.update { TopCalculatorState() }
         _bottomState.update { BottomCalculatorState() }
     }
