@@ -7,8 +7,8 @@ data class BottomCalculatorState(
 ) {
     /**
      * Expression string formatted with '+' signs between saved items.
-     * Preserves visible grouping dots, decimal commas, and trailing zeros.
-     * Example: "1.234.567,50+200,25+30,00"
+     * Preserves visible grouping commas and decimal dots.
+     * Example: "1,234,567.50+200.25+30.00"
      */
     val expression: String
         get() = savedItems.joinToString("+") { item ->
@@ -16,8 +16,8 @@ data class BottomCalculatorState(
         }
 
     /**
-     * Formatted expression with thousands separators and Spanish decimal comma for display.
-     * Example: "1.234.567,50+200,25+30,00"
+     * Formatted expression with thousands separators and decimal dot for display.
+     * Example: "1,234,567.50+200.25+30.00"
      */
     val formattedExpression: String
         get() = savedItems.joinToString("+") { item ->
@@ -40,7 +40,7 @@ data class BottomCalculatorState(
 
     /**
      * Formatted total string.
-     * Example: "Total=1.234.797,75"
+     * Example: "Total=1,234,797.75"
      */
     val formattedTotal: String
         get() = "Total=" + CalculatorEngine.formatBigDecimal(totalBigDecimal)

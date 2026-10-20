@@ -24,19 +24,6 @@ data class TopCalculatorState(
         return TopCalculatorState(expression = newExpr, isFixed = false)
     }
 
-    fun appendComma(): TopCalculatorState {
-        val baseExpr = if (isFixed) "" else expression
-        val tokens = CalculatorEngine.tokenize(baseExpr)
-        val lastToken = tokens.lastOrNull() ?: ""
-        if (lastToken.contains(',') || lastToken.contains('.')) return this.copy(isFixed = false)
-        val newExpr = if (baseExpr.isEmpty() || CalculatorEngine.isOperator(baseExpr.last())) {
-            baseExpr + "0,"
-        } else {
-            baseExpr + ","
-        }
-        return TopCalculatorState(expression = newExpr, isFixed = false)
-    }
-
     fun appendDot(): TopCalculatorState {
         val baseExpr = if (isFixed) "" else expression
         val tokens = CalculatorEngine.tokenize(baseExpr)

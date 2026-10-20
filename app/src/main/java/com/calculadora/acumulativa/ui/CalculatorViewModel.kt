@@ -21,10 +21,6 @@ class CalculatorViewModel : ViewModel() {
         _topState.update { it.appendDigit(digit) }
     }
 
-    fun onTopCommaClick() {
-        _topState.update { it.appendComma() }
-    }
-
     fun onTopDotClick() {
         _topState.update { it.appendDot() }
     }

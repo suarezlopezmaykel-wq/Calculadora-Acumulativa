@@ -84,50 +84,55 @@ class CalculatorEngineTest {
         assertEquals("Total=490", viewModel.bottomState.value.formattedTotal)
     }
 
-    // Test 5: Entrada de decimales mediante el botón coma y prevención de duplicados
+    // Test 5: Entrada de decimales mediante el botón punto y prevención de duplicados
     @Test
-    fun test5_CommaDecimalInputAndDuplicateRejection() {
+    fun test5_DotDecimalInputAndDuplicateRejection() {
         viewModel.onTopDigitClick("1")
         viewModel.onTopDigitClick("1")
         viewModel.onTopDigitClick("1")
-        viewModel.onTopCommaClick()
+        viewModel.onTopDotClick()
         viewModel.onTopDigitClick("5")
         viewModel.onTopDigitClick("0")
 
-        assertEquals("111,50", viewModel.topState.value.formattedExpression)
+        assertEquals("111.50", viewModel.topState.value.formattedExpression)
 
-        // Attempt second comma in same token should be rejected
-        viewModel.onTopCommaClick()
-        assertEquals("111,50", viewModel.topState.value.formattedExpression)
+        // Attempt second dot in same token should be rejected
+        viewModel.onTopDotClick()
+        assertEquals("111.50", viewModel.topState.value.formattedExpression)
     }
 
-    // Test 6: Comportamiento del botón punto para agrupación de miles
+    // Test 6: Comportamiento de separación automática de miles con comas
     @Test
-    fun test6_DotButtonGrouping() {
+    fun test6_AutomaticCommaGroupingForThousands() {
         viewModel.onTopDigitClick("1")
         viewModel.onTopDigitClick("0")
         viewModel.onTopDigitClick("0")
         viewModel.onTopDigitClick("0")
 
-        assertEquals("1.000", viewModel.topState.value.formattedExpression)
+        assertEquals("1,000", viewModel.topState.value.formattedExpression)
+
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopDigitClick("0")
+
+        assertEquals("100,000", viewModel.topState.value.formattedExpression)
     }
 
-    // Test 7: Accumulación de "1.234.567,50+200,25+30,00" -> "Total=1.234.797,75"
+    // Test 7: Accumulación de "1,234,567.50+200.25+30.00" -> "Total=1,234,797.75"
     @Test
     fun test7_SpecificAccumulatorExample() {
-        viewModel.onSaveTopResultToBottom("1.234.567,50")
-        viewModel.onSaveTopResultToBottom("200,25")
-        viewModel.onSaveTopResultToBottom("30,00")
+        viewModel.onSaveTopResultToBottom("1,234,567.50")
+        viewModel.onSaveTopResultToBottom("200.25")
+        viewModel.onSaveTopResultToBottom("30.00")
 
-        assertEquals("1.234.567,50+200,25+30,00", viewModel.bottomState.value.formattedExpression)
-        assertEquals("Total=1.234.797,75", viewModel.bottomState.value.formattedTotal)
+        assertEquals("1,234,567.50+200.25+30.00", viewModel.bottomState.value.formattedExpression)
+        assertEquals("Total=1,234,797.75", viewModel.bottomState.value.formattedTotal)
     }
 
-    // Test 8: 99999999999999999 + 1 -> 100000000000000000
+    // Test 8: 99999999999999999 + 1 -> 100,000,000,000,000,000
     @Test
     fun test8_SeventeenNinesPlusOne() {
         val result = CalculatorEngine.evaluateFormatted("99999999999999999 + 1")
-        assertEquals("100.000.000.000.000.000", result)
+        assertEquals("100,000,000,000,000,000", result)
     }
 
     // Test 9: Toque corto de C: borrar exactamente un elemento
@@ -212,7 +217,7 @@ class CalculatorEngineTest {
         assertEquals("", viewModel.bottomState.value.expression)
     }
 
-    // Test 17: 17-digit precision test "99999999999999999" -> "99.999.999.999.999.999"
+    // Test 17: 17-digit precision test "99999999999999999" -> "99,999,999,999,999,999"
     @Test
     fun test17_SeventeenDigitPrecisionAndThousandsSeparators() {
         val seventeenNines = "99999999999999999"
@@ -222,24 +227,24 @@ class CalculatorEngineTest {
 
         // Verify expression keeps exact 17 digits without turning into 100000000000000000
         assertEquals("99999999999999999", viewModel.topState.value.expression)
-        assertEquals("99.999.999.999.999.999", viewModel.topState.value.formattedExpression)
-        assertEquals("99.999.999.999.999.999", viewModel.topState.value.suggestedResult)
+        assertEquals("99,999,999,999,999,999", viewModel.topState.value.formattedExpression)
+        assertEquals("99,999,999,999,999,999", viewModel.topState.value.suggestedResult)
     }
 
-    // Test 18: Exact BigDecimal Decimal Calculations (Spanish format with dot for thousands, comma for decimals)
+    // Test 18: Exact BigDecimal Decimal Calculations (US format with comma for thousands, dot for decimals)
     @Test
     fun test18_ExactDecimalCalculations() {
-        // "100.20 + 11.30" -> "111,50" (Monetary format with 2 decimals)
-        assertEquals("111,50", CalculatorEngine.evaluateFormatted("100.20 + 11.30"))
+        // "100.20 + 11.30" -> "111.50" (Monetary format with 2 decimals)
+        assertEquals("111.50", CalculatorEngine.evaluateFormatted("100.20 + 11.30"))
 
-        // "0.1 + 0.2" -> "0,3"
-        assertEquals("0,3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
+        // "0.1 + 0.2" -> "0.3"
+        assertEquals("0.3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
 
-        // "19.99 × 3" -> "59,97"
-        assertEquals("59,97", CalculatorEngine.evaluateFormatted("19.99 × 3"))
+        // "19.99 × 3" -> "59.97"
+        assertEquals("59.97", CalculatorEngine.evaluateFormatted("19.99 × 3"))
 
-        // "19.99 × 3 + 4.50" -> "64,47"
-        assertEquals("64,47", CalculatorEngine.evaluateFormatted("19.99 × 3 + 4.50"))
+        // "19.99 × 3 + 4.50" -> "64.47"
+        assertEquals("64.47", CalculatorEngine.evaluateFormatted("19.99 × 3 + 4.50"))
 
         // "2 + 3 × 4" -> "14"
         assertEquals("14", CalculatorEngine.evaluateFormatted("2 + 3 × 4"))

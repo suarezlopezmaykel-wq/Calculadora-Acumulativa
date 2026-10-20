@@ -14,7 +14,7 @@ object CalculatorEngine {
             val c = intStr[i]
             if (c.isDigit()) {
                 if (count > 0 && count % 3 == 0) {
-                    sb.append('.')
+                    sb.append(',')
                 }
                 sb.append(c)
                 count++
@@ -26,13 +26,15 @@ object CalculatorEngine {
     }
 
     /**
-     * Formats a raw number string (e.g. "1234.56" or "1234,56" or "99999999999999999"):
-     * Uses dot (.) for thousands separator in integer part and comma (,) for decimal point (Spanish format).
-     * Example: "1234.56" -> "1.234,56"
-     * Example: "1000" -> "1.000"
-     * Example: "0.3" -> "0,3"
-     * Example: "111.50" -> "111,50"
-     * Example: "99999999999999999" -> "99.999.999.999.999.999"
+     * Formats a raw number string (e.g. "1234.56" or "1234567.89" or "99999999999999999"):
+     * Uses comma (,) for thousands separator in integer part and dot (.) for decimal point.
+     * Example: "1000" -> "1,000"
+     * Example: "12500" -> "12,500"
+     * Example: "1234567" -> "1,234,567"
+     * Example: "8.0" -> "8.0"
+     * Example: "111.50" -> "111.50"
+     * Example: "1234567.89" -> "1,234,567.89"
+     * Example: "99999999999999999" -> "99,999,999,999,999,999"
      */
     fun formatNumberString(token: String): String {
         if (token.isBlank()) return token
@@ -52,8 +54,8 @@ object CalculatorEngine {
 
         if (numStr.isEmpty()) return token
 
-        // Unformat if already formatted (e.g. containing thousand dots or decimal commas)
-        if (numStr.contains(",") || (numStr.contains(".") && numStr.count { it == '.' } > 1)) {
+        // Unformat if already formatted (e.g. containing thousand commas)
+        if (numStr.contains(",")) {
             numStr = unformatNumberString(numStr)
         }
 
@@ -70,7 +72,7 @@ object CalculatorEngine {
 
         val signStr = if (isNegative) "-" else ""
         val formattedNum = if (decPart != null) {
-            "$signStr$formattedInt,$decPart"
+            "$signStr$formattedInt.$decPart"
         } else {
             "$signStr$formattedInt"
         }
@@ -110,21 +112,12 @@ object CalculatorEngine {
     }
 
     /**
-     * Converts a formatted string (e.g., "1.234,56") back to a standard raw number string ("1234.56")
-     * suitable for BigDecimal parsing.
+     * Converts a formatted string (e.g., "1,234,567.89") back to a standard raw number string ("1234567.89")
+     * suitable for BigDecimal parsing by removing thousands separator commas.
      */
     fun unformatNumberString(str: String): String {
         if (str.isBlank()) return str
-        val clean = str.trim()
-        // If it contains a comma, the dots are thousands separators and comma is decimal separator
-        return if (clean.contains(",")) {
-            clean.replace(".", "").replace(",", ".")
-        } else if (clean.count { it == '.' } > 1) {
-            // Multiple dots means they are thousands separators
-            clean.replace(".", "")
-        } else {
-            clean
-        }
+        return str.trim().replace(",", "")
     }
 
     fun isOperator(char: Char): Boolean {
