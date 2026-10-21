@@ -74,7 +74,7 @@ data class TopCalculatorState(
     fun fixResult(): TopCalculatorState {
         val res = CalculatorEngine.evaluateFormatted(expression) ?: return this
         if (res == "Error") return this
-        return copy(fixedResult = res, isFixed = true)
+        return copy(expression = res, fixedResult = res, isFixed = true)
     }
 
     fun clear(): TopCalculatorState {

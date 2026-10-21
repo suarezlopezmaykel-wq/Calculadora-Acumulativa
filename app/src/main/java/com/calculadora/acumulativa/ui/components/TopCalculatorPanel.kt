@@ -121,7 +121,7 @@ fun TopCalculatorPanel(
 
             // Result Line
             val resultDisplay = when {
-                state.isFixed -> "= ${state.fixedResult} (Fijado)"
+                state.isFixed -> ""
                 state.suggestedResult != null -> "= ${state.suggestedResult}"
                 else -> ""
             }
