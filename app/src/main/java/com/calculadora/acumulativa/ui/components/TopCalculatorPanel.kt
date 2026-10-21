@@ -139,36 +139,44 @@ fun TopCalculatorPanel(
                 .padding(12.dp),
             horizontalAlignment = Alignment.End
         ) {
-            // Expression Line
-            Text(
-                text = if (state.formattedExpression.isBlank()) "0" else state.formattedExpression,
-                color = Color(0xFFCBD5E1),
-                fontSize = if (btnHeight > 50.dp) 24.sp else 20.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // When result is fixed via "=", show only confirmed result. Otherwise show expression + suggested result.
+            if (state.isFixed) {
+                Text(
+                    text = state.fixedResult ?: "",
+                    color = Color(0xFF60A5FA),
+                    fontSize = if (btnHeight > 50.dp) 28.sp else 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                // Expression Line
+                Text(
+                    text = if (state.formattedExpression.isBlank()) "0" else state.formattedExpression,
+                    color = Color(0xFFCBD5E1),
+                    fontSize = if (btnHeight > 50.dp) 24.sp else 20.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            // Result Line
-            val resultDisplay = when {
-                state.isFixed -> state.fixedResult ?: ""
-                state.suggestedResult != null -> state.suggestedResult ?: ""
-                else -> ""
+                // Result Line (suggested preliminary result)
+                Text(
+                    text = state.suggestedResult ?: "",
+                    color = Color(0xFF38BDF8),
+                    fontSize = if (btnHeight > 50.dp) 28.sp else 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
-
-            Text(
-                text = resultDisplay,
-                color = if (state.isFixed) Color(0xFF60A5FA) else Color(0xFF38BDF8),
-                fontSize = if (btnHeight > 50.dp) 28.sp else 24.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         Spacer(modifier = Modifier.height(10.dp))

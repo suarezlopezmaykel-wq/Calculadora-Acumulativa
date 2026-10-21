@@ -51,6 +51,7 @@ class CalculatorEngineTest {
         viewModel.onTopEqualsClick()
         assertTrue(viewModel.topState.value.isFixed)
         assertEquals("15", viewModel.topState.value.fixedResult)
+        assertEquals("15", viewModel.topState.value.expression)
 
         // Save result
         viewModel.onSaveTopResultToBottom("15")
@@ -251,5 +252,96 @@ class CalculatorEngineTest {
 
         // "1 ÷ 3 × 3" -> "1"
         assertEquals("1", CalculatorEngine.evaluateFormatted("1 ÷ 3 × 3"))
+    }
+
+    // Test 20: "5+4" equals test - expression replaced with "9"
+    @Test
+    fun test20_EqualsButtonReplacesExpressionWithResult_FivePlusFour() {
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        assertEquals("9", viewModel.topState.value.suggestedResult)
+
+        // Press '='
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("9", viewModel.topState.value.fixedResult)
+        assertEquals("9", viewModel.topState.value.expression)
+    }
+
+    // Test 21: "8×3" equals test - expression replaced with "24"
+    @Test
+    fun test21_EqualsButtonReplacesExpressionWithResult_EightTimesThree() {
+        viewModel.onTopDigitClick("8")
+        viewModel.onTopOperatorClick("×")
+        viewModel.onTopDigitClick("3")
+        assertEquals("24", viewModel.topState.value.suggestedResult)
+
+        // Press '='
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("24", viewModel.topState.value.fixedResult)
+        assertEquals("24", viewModel.topState.value.expression)
+    }
+
+    // Test 22: Decimal operation equals test - preserves decimal format & trailing zeros
+    @Test
+    fun test22_EqualsButtonDecimalOperationPreservesFormat() {
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopDotClick()
+        viewModel.onTopDigitClick("2")
+        viewModel.onTopDigitClick("0")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDigitClick("1")
+        viewModel.onTopDotClick()
+        viewModel.onTopDigitClick("3")
+        viewModel.onTopDigitClick("0")
+
+        assertEquals("111.50", viewModel.topState.value.suggestedResult)
+
+        // Press '='
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("111.50", viewModel.topState.value.fixedResult)
+        assertEquals("111.50", viewModel.topState.value.expression)
+    }
+
+    // Test 23: Typing new digit after '=' starts fresh without accidental concatenation
+    @Test
+    fun test23_TypingNewDigitAfterEqualsStartsFresh() {
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        viewModel.onTopEqualsClick()
+
+        assertEquals("9", viewModel.topState.value.expression)
+
+        // Type '2'
+        viewModel.onTopDigitClick("2")
+
+        assertFalse(viewModel.topState.value.isFixed)
+        assertEquals("2", viewModel.topState.value.expression)
+    }
+
+    // Test 24: Verify '=' does not alter or duplicate accumulator saved items
+    @Test
+    fun test24_EqualsDoesNotAlterAccumulator() {
+        viewModel.onSaveTopResultToBottom("100")
+        assertEquals("100", viewModel.bottomState.value.expression)
+
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        viewModel.onTopEqualsClick()
+
+        // Accumulator should remain unchanged until "Guardar cálculo" is pressed
+        assertEquals("100", viewModel.bottomState.value.expression)
+        assertEquals("Total=100", viewModel.bottomState.value.formattedTotal)
     }
 }

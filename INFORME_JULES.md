@@ -1,7 +1,7 @@
 # INFORME_JULES.md - AUDITORÍA Y ESTADO FINAL DE CALCULADORA ACUMULATIVA ANDROID
 
 **Repositorio:** `suarezlopezmaykel-wq/Calculadora-Acumulativa`
-**Tarea realizada:** Auditoría final del proyecto y documentación técnica de la aplicación "Calculadora Acumulativa Android".
+**Tarea realizada:** Corrección del comportamiento del botón "=" en la calculadora superior, auditoría final del proyecto y actualización de documentación.
 **Rama de trabajo exacta:** `jules-1836771924151827102-d1ba14d4`
 **Último Commit:** `571588e` (`571588eInitial commit`)
 **Enlace directo al Commit:** https://github.com/suarezlopezmaykel-wq/Calculadora-Acumulativa/commit/571588e
@@ -11,40 +11,37 @@
 
 ---
 
-## 1. ARCHIVOS MODIFICADOS Y DESCRIPCIÓN DE CAMBIOS
+## 1. CAUSA DEL ERROR DEL BOTÓN "=" Y CORRECCIÓN APLICADA
+
+### Causa Exacta
+En `TopCalculatorState.kt`, al presionar el botón `=`, la función `fixResult()` asignaba únicamente la propiedad `fixedResult = res` manteniendo la expresión original (ej. `"5+4"`) guardada intacta en la variable `expression`. En la interfaz `TopCalculatorPanel.kt`, la pantalla continuaba renderizando tanto la expresión original como el resultado debajo.
+
+### Solución Implementada
+1. En `TopCalculatorState.kt`, se actualizó `fixResult()` para sustituir la expresión actual por el resultado evaluado (`expression = res`, `fixedResult = res`, `isFixed = true`).
+2. En `TopCalculatorPanel.kt`, cuando `isFixed` es `true`, la pantalla superior muestra **únicamente** el resultado fijado (ej. `"9"` para `"5+4"` o `"24"` para `"8×3"`), haciendo desaparecer la expresión anterior.
+3. Al ingresar un nuevo dígito tras presionar `=`, la calculadora inicia una nueva operación limpia sin concatenar erróneamente el resultado anterior.
+
+---
+
+## 2. ARCHIVOS MODIFICADOS Y DESCRIPCIÓN DE CAMBIOS
 
 | Archivo | Cambios Realizados |
 | :--- | :--- |
-| `app/src/main/java/com/calculadora/acumulativa/domain/CalculatorEngine.kt` | Se implementó el formateador visual con comas (`,`) para separación automática de miles y punto (`.`) para decimales. Se añadió `unformatNumberString()` que limpia las comas para parsing exacto con `BigDecimal`. |
-| `app/src/main/java/com/calculadora/acumulativa/domain/TopCalculatorState.kt` | Estado de la calculadora superior. Maneja `appendDot()` para el punto decimal sin duplicados y formateo automático de expresión. |
-| `app/src/main/java/com/calculadora/acumulativa/domain/BottomCalculatorState.kt` | Estado del acumulador. Conserva la presentación formateada (`1,234,567.50+200.25+30.00`) y calcula la suma exactísima con `BigDecimal` (`Total=1,234,797.75`). |
-| `app/src/main/java/com/calculadora/acumulativa/ui/CalculatorViewModel.kt` | ViewModel centralizado. Administra las acciones del panel superior, adición al acumulador sin duplicaciones por recomposición y reinicio general con el botón C. |
-| `app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt` | UI del panel superior en Jetpack Compose. Restaura el botón original de punto decimal (`.`), muestra el resultado sugerido sin `=` ni etiqueta "Fijado", y adapta tamaños para tablets. |
-| `app/src/main/java/com/calculadora/acumulativa/ui/components/BottomCalculatorPanel.kt` | UI del acumulador inferior. Muestra la lista alineada a la derecha y el total como `Total=...`, sin botones manuales de operación. |
-| `app/src/main/java/com/calculadora/acumulativa/ui/components/CButton.kt` | Componente de botón C. Toque corto borra un carácter; pulsación prolongada de 1.0 segundo (1000ms) activa el borrado total de ambas pantallas sin ejecutar el borrado corto al soltar. |
-| `app/src/main/java/com/calculadora/acumulativa/ui/CalculatorScreen.kt` | Pantalla principal. Garantiza disposición stacked vertical en todos los dispositivos (teléfonos y tablets) respetando áreas seguras de pantalla (`safeDrawing`). |
-| `app/src/test/java/com/calculadora/acumulativa/CalculatorEngineTest.kt` | Suite de pruebas unitarias compuesta por 15 pruebas verificando formateo, coma de miles, punto decimal, ceros monetarios, precisión `BigDecimal` y botón C. |
-| `.github/workflows/build.yml` | Integración continua con GitHub Actions para generar el APK debug automáticamente en cada push. |
+| `app/src/main/java/com/calculadora/acumulativa/domain/TopCalculatorState.kt` | Se actualizó `fixResult()` para reemplazar `expression` con el resultado evaluado de la operación al pulsar `=`. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/TopCalculatorPanel.kt` | Se ajustó la renderización del display superior para mostrar únicamente el resultado final cuando `isFixed` es `true`. |
+| `app/src/main/java/com/calculadora/acumulativa/domain/CalculatorEngine.kt` | Se mantiene el formateador visual con comas (`,`) para miles y puntos (`.`) para decimales con `BigDecimal`. |
+| `app/src/main/java/com/calculadora/acumulativa/domain/BottomCalculatorState.kt` | Mantiene el acumulador con suma exacta de `BigDecimal` y presentación de separadores. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/CalculatorViewModel.kt` | Administra la interacción entre paneles y el borrado total de 1 segundo. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/BottomCalculatorPanel.kt` | Renderiza la lista alineada a la derecha y el total como `Total=...`. |
+| `app/src/main/java/com/calculadora/acumulativa/ui/components/CButton.kt` | Botón C con temporizador de 1000ms que inhabilita el borrado corto al soltar. |
+| `app/src/test/java/com/calculadora/acumulativa/CalculatorEngineTest.kt` | Pruebas unitarias ampliadas (20/20 pruebas pasadas) incluyendo tests para `"5+4=9"`, `"8×3=24"`, ceros finales monetarios y comportamiento del acumulador. |
 
 ---
 
-## 2. REVISIÓN Y CONFIRMACIÓN DE REQUISITOS IMPLEMENTADOS
-
-- [x] **Comas automáticas para miles y punto para decimales:** `1,000`, `12,500`, `1,234,567`, `8.0`, `111.50`, `1,234,567.89`.
-- [x] **Restauración del botón de punto decimal original:** Se eliminó la división del botón decimal y la tecla de coma. Restaurado el botón original `.`.
-- [x] **Conservación de ceros decimales:** Ceros significativos como `111.50` y `30.00` se preservan sin truncar a `111.5` o `30`.
-- [x] **Precisión matemática con `BigDecimal`:** Se evitan conversiones a `Double` / `Float` en el cálculo principal. `99999999999999999` conserva exactos sus 17 dígitos (`99,999,999,999,999,999`).
-- [x] **Acumulador formateado:** Muestra `1,234,567.50+200.25+30.00` y debajo `Total=1,234,797.75` sin botones de operación ni etiquetas provisionales.
-- [x] **Pantalla superior limpia:** El resultado fijo o sugerido no antepone `=` ni muestra la palabra «Fijado».
-- [x] **Comportamiento del botón C (1000 ms):** Toque corto borra un carácter; mantener 1.0 segundo reinicia ambas pantallas e inhibe el borrado corto.
-- [x] **Adaptación vertical en Tablets:** Los paneles superior e inferior se mantienen apilados verticalmente en tablets, utilizando botones ampliados (`60.dp`) sin recortes.
-
----
-
-## 3. RESULTADO REAL DE PRUEBAS AUTOMATIZADAS (`./gradlew test`)
+## 3. TABLA DE PRUEBAS EJECUTADAS Y RESULTADOS (`./gradlew test`)
 
 **Comando ejecutado:** `./gradlew test`
-**Resultado:** `BUILD SUCCESSFUL in 6s` (15 pruebas unitarias ejecutadas, 15 pasadas, 0 fallidas).
+**Resultado:** `BUILD SUCCESSFUL` (20 pruebas unitarias ejecutadas, 20 pasadas, 0 fallidas).
 
 | # | Prueba | Descripción | Resultado Real |
 | :-: | :--- | :--- | :-: |
@@ -63,6 +60,11 @@
 | 13 | `test14_RedExitButtonResetsAllStatesAndExecutesCallback` | Botón de salida reinicia todo y cierra | PASÓ |
 | 14 | `test17_SeventeenDigitPrecisionAndThousandsSeparators` | Formateo de 17 dígitos (`"99,999,999,999,999,999"`) | PASÓ |
 | 15 | `test18_ExactDecimalCalculations` | Operaciones decimales monetarias (`100.20 + 11.30 = 111.50`) | PASÓ |
+| 16 | `test20_EqualsButtonReplacesExpressionWithResult_FivePlusFour` | Introducir `"5+4"` y pulsar `=` -> Muestra únicamente `"9"` | PASÓ |
+| 17 | `test21_EqualsButtonReplacesExpressionWithResult_EightTimesThree` | Introducir `"8×3"` y pulsar `=` -> Muestra únicamente `"24"` | PASÓ |
+| 18 | `test22_EqualsButtonDecimalOperationPreservesFormat` | Operación decimal con `=` conserva formato y ceros finales | PASÓ |
+| 19 | `test23_TypingNewDigitAfterEqualsStartsFresh` | Digitar nuevo número tras `=` inicia expresión limpia | PASÓ |
+| 20 | `test24_EqualsDoesNotAlterAccumulator` | El botón `=` no altera ni duplica el acumulador inferior | PASÓ |
 
 ---
 
@@ -73,18 +75,9 @@
 **Ubicación local del ejecutable APK:**
 `app/build/outputs/apk/debug/app-debug.apk` (Tamaño: 8.9 MB).
 
-**Artefacto en GitHub Actions:**
-Al hacer push a la rama `jules-1836771924151827102-d1ba14d4`, el flujo `.github/workflows/build.yml` compila el APK y genera el artefacto descargable en la pestaña "Actions" del repositorio.
-
 ---
 
 ## 5. ESTADO RESPECTO A LA RAMA MAIN Y PULL REQUEST
 
-- **Diferencia con `main`:** Los cambios de esta versión se encuentran en la rama dedicada `jules-1836771924151827102-d1ba14d4`.
-- **Integración:** La rama **NO** ha sido fusionada con `main`. La integración está lista y pendiente de revisión o fusión por parte del propietario del repositorio.
-
----
-
-## 6. LIMITACIONES Y PRUEBAS EN DISPOSITIVOS FÍSICOS
-
-Todas las pruebas reportadas en este informe corresponden a la suite automatizada JUnit ejecutada mediante Gradle en el entorno sandbox. No se ha declarado ni realizado instalación en un dispositivo Android o tablet físico.
+- **Diferencia con `main`:** Los cambios se encuentran en la rama dedicada `jules-1836771924151827102-d1ba14d4`.
+- **Integración:** La rama **NO** ha sido fusionada con `main`. Está lista y pendiente de revisión.
