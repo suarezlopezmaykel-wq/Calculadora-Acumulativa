@@ -50,6 +50,7 @@ class CalculatorEngineTest {
         viewModel.onTopEqualsClick()
         assertTrue(viewModel.topState.value.isFixed)
         assertEquals("15", viewModel.topState.value.fixedResult)
+        assertEquals("15", viewModel.topState.value.expression)
 
         // Save result
         viewModel.onSaveTopResultToBottom("15")
@@ -253,5 +254,135 @@ class CalculatorEngineTest {
         // C short click backspaces
         viewModel.onTopShortDeleteClick()
         assertEquals("10 ÷", viewModel.topState.value.expression.trim())
+    }
+
+    // Required Test Case 1: Introducir "5+4": resultado preliminar "9". Al pulsar "=", la pantalla muestra únicamente "9".
+    @Test
+    fun testMandatory1_FivePlusFourEquals() {
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+
+        assertEquals("5 + 4", viewModel.topState.value.expression.trim())
+        assertEquals("9", viewModel.topState.value.suggestedResult)
+        assertFalse(viewModel.topState.value.isFixed)
+
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("9", viewModel.topState.value.expression)
+        assertEquals("9", viewModel.topState.value.fixedResult)
+        assertEquals("9", viewModel.topState.value.suggestedResult)
+    }
+
+    // Required Test Case 2: Introducir "8×3": al pulsar "=", debe quedar únicamente "24".
+    @Test
+    fun testMandatory2_EightTimesThreeEquals() {
+        viewModel.onTopDigitClick("8")
+        viewModel.onTopOperatorClick("×")
+        viewModel.onTopDigitClick("3")
+
+        assertEquals("8 × 3", viewModel.topState.value.expression.trim())
+        assertEquals("24", viewModel.topState.value.suggestedResult)
+
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("24", viewModel.topState.value.expression)
+        assertEquals("24", viewModel.topState.value.fixedResult)
+    }
+
+    // Required Test Case 3: Introducir una operación decimal: el resultado final debe conservar el formato decimal correcto.
+    @Test
+    fun testMandatory3_DecimalOperationFormatting() {
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopDotClick()
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("2")
+        viewModel.onTopDotClick()
+
+        viewModel.onTopDigitClick("25") // digit appended
+        // Let's reset expression and set cleanly: 5.5 + 2.25
+        viewModel.onResetAll()
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopDotClick()
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("2")
+        viewModel.onTopDotClick()
+        viewModel.onTopDigitClick("2")
+        viewModel.onTopDigitClick("5")
+
+        assertEquals("5.5 + 2.25", viewModel.topState.value.expression.trim())
+        assertEquals("7.75", viewModel.topState.value.suggestedResult)
+
+        viewModel.onTopEqualsClick()
+
+        assertTrue(viewModel.topState.value.isFixed)
+        assertEquals("7.75", viewModel.topState.value.expression)
+        assertEquals("7.75", viewModel.topState.value.fixedResult)
+    }
+
+    // Required Test Case 4: Después de pulsar "=", introducir una nueva operación debe funcionar correctamente, sin concatenar accidentalmente el resultado anterior.
+    @Test
+    fun testMandatory4_NewOperationAfterEqualsWithoutConcatenation() {
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        viewModel.onTopEqualsClick()
+
+        assertEquals("9", viewModel.topState.value.expression)
+        assertTrue(viewModel.topState.value.isFixed)
+
+        // Typing a new digit starts a new expression (e.g., "7")
+        viewModel.onTopDigitClick("7")
+        assertFalse(viewModel.topState.value.isFixed)
+        assertEquals("7", viewModel.topState.value.expression)
+
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("3")
+        assertEquals("7 + 3", viewModel.topState.value.expression.trim())
+        assertEquals("10", viewModel.topState.value.suggestedResult)
+
+        // Alternatively, typing an operator directly after '=' reuses the result as base
+        viewModel.onResetAll()
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        viewModel.onTopEqualsClick()
+
+        viewModel.onTopOperatorClick("+")
+        assertEquals("9 + ", viewModel.topState.value.expression)
+        assertFalse(viewModel.topState.value.isFixed)
+        viewModel.onTopDigitClick("2")
+        assertEquals("9 + 2", viewModel.topState.value.expression.trim())
+        assertEquals("11", viewModel.topState.value.suggestedResult)
+    }
+
+    // Required Test Case 5: Verificar que el botón "=" no altera ni duplica los valores guardados en el acumulador inferior.
+    @Test
+    fun testMandatory5_EqualsButtonDoesNotAlterOrDuplicateAccumulator() {
+        // Initial accumulator state
+        viewModel.onSaveTopResultToBottom("10")
+        viewModel.onBottomOperatorClick("+")
+        viewModel.onSaveTopResultToBottom("20")
+
+        val bottomExprBefore = viewModel.bottomState.value.expression
+        val bottomTotalBefore = viewModel.bottomState.value.suggestedTotal
+
+        assertEquals("10 + 20", bottomExprBefore.trim())
+        assertEquals("30", bottomTotalBefore)
+
+        // Perform top operation and press '=' repeatedly
+        viewModel.onTopDigitClick("5")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("4")
+        viewModel.onTopEqualsClick()
+        viewModel.onTopEqualsClick()
+
+        // Verify bottom accumulator state remains untouched
+        assertEquals(bottomExprBefore, viewModel.bottomState.value.expression)
+        assertEquals(bottomTotalBefore, viewModel.bottomState.value.suggestedTotal)
     }
 }
