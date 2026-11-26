@@ -105,7 +105,7 @@ fun TopCalculatorPanel(
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text(
-                text = "Acumulado: ${accumulatorState.expression.ifBlank { "0" }}",
+                text = "Guardado: ${accumulatorState.expression.ifBlank { "0" }}",
                 color = Color(0xFFA7F3D0),
                 fontSize = 13.sp,
                 maxLines = 1,
@@ -114,9 +114,9 @@ fun TopCalculatorPanel(
             )
             Text(
                 text = when {
-                    accumulatorState.isFixed -> "Total = ${accumulatorState.fixedTotal}"
-                    accumulatorState.suggestedTotal != null -> "Total = ${accumulatorState.suggestedTotal}"
-                    else -> "Total = 0"
+                    accumulatorState.isFixed -> "Total: ${accumulatorState.fixedTotal}"
+                    accumulatorState.suggestedTotal != null -> "Total: ${accumulatorState.suggestedTotal}"
+                    else -> "Total: 0"
                 },
                 color = Color(0xFF6EE7B7),
                 fontSize = 17.sp,
