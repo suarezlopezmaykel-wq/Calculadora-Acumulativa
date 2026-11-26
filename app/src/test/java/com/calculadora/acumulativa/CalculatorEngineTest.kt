@@ -273,6 +273,8 @@ class CalculatorEngineTest {
 
     @Test
     fun nonFiniteArithmeticResultsAreRejected() {
-        assertNull(CalculatorEngine.evaluate("1e308 × 1e308"))
+        // 10^155 is representable as a Double; multiplying it by itself overflows.
+        val largeFiniteNumber = "1" + "0".repeat(155)
+        assertNull(CalculatorEngine.evaluate("$largeFiniteNumber × $largeFiniteNumber"))
     }
 }
