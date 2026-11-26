@@ -254,4 +254,25 @@ class CalculatorEngineTest {
         viewModel.onTopShortDeleteClick()
         assertEquals("10 ÷", viewModel.topState.value.expression.trim())
     }
+
+    @Test
+    fun arithmeticPrecedenceAndNegativeNumbersAreCorrect() {
+        assertEquals(14.0, CalculatorEngine.evaluate("2 + 3 × 4")!!, 0.0)
+        assertEquals(4.0, CalculatorEngine.evaluate("10 − 3 × 2")!!, 0.0)
+        assertEquals(-6.0, CalculatorEngine.evaluate("−2 × 3")!!, 0.0)
+        assertEquals(-1.0, CalculatorEngine.evaluate("2 + -3")!!, 0.0)
+    }
+
+    @Test
+    fun unsupportedCharactersAndMalformedExpressionsAreRejected() {
+        assertNull(CalculatorEngine.evaluate("2x3"))
+        assertNull(CalculatorEngine.evaluate("2.3.4"))
+        assertNull(CalculatorEngine.evaluate("2 + + 3"))
+        assertNull(CalculatorEngine.evaluate("2 + "))
+    }
+
+    @Test
+    fun nonFiniteArithmeticResultsAreRejected() {
+        assertNull(CalculatorEngine.evaluate("1e308 × 1e308"))
+    }
 }
