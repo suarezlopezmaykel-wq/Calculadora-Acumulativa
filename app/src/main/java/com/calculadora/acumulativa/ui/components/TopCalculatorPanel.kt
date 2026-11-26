@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -85,7 +86,7 @@ fun TopCalculatorPanel(
                 style = GlassButtonStyle.EXIT,
                 fontSize = 15.sp,
                 height = 32.dp,
-                modifier = Modifier.padding(0.dp)
+                modifier = Modifier.width(48.dp).padding(0.dp)
             )
         }
 
