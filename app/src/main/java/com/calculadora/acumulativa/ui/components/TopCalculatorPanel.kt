@@ -25,11 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.calculadora.acumulativa.domain.BottomCalculatorState
 import com.calculadora.acumulativa.domain.TopCalculatorState
 
 @Composable
 fun TopCalculatorPanel(
     state: TopCalculatorState,
+    accumulatorState: BottomCalculatorState,
     onDigitClick: (String) -> Unit,
     onOperatorClick: (String) -> Unit,
     onDotClick: () -> Unit,
@@ -37,6 +39,8 @@ fun TopCalculatorPanel(
     onShortDeleteClick: () -> Unit,
     onResetAllClick: () -> Unit,
     onSaveResultClick: (String) -> Unit,
+    onAccumulatorOperatorClick: (String) -> Unit,
+    onAccumulatorEqualsClick: () -> Unit,
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -90,7 +94,39 @@ fun TopCalculatorPanel(
             )
         }
 
-        // Display Area
+        // Compact accumulator readout integrated into the upper calculator card.
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color(0x26065F46))
+                .border(1.dp, Color(0x6034D399), RoundedCornerShape(10.dp))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Acumulado: ${accumulatorState.expression.ifBlank { "0" }}",
+                color = Color(0xFFA7F3D0),
+                fontSize = 13.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = when {
+                    accumulatorState.isFixed -> "Total = ${accumulatorState.fixedTotal}"
+                    accumulatorState.suggestedTotal != null -> "Total = ${accumulatorState.suggestedTotal}"
+                    else -> "Total = 0"
+                },
+                color = Color(0xFF6EE7B7),
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Main calculator display.
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -228,5 +264,29 @@ fun TopCalculatorPanel(
                 enabled = canSave
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Accumulator operators stay available, without a separate lower screen.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            CalcButton("+", { onAccumulatorOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
+            CalcButton("−", { onAccumulatorOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
+            CalcButton("×", { onAccumulatorOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
+            CalcButton("÷", { onAccumulatorOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
+        }
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        CalcButton(
+            text = "Fijar total =",
+            onClick = onAccumulatorEqualsClick,
+            modifier = Modifier.fillMaxWidth(),
+            style = GlassButtonStyle.EQUALS_GREEN,
+            height = 42.dp,
+            enabled = accumulatorState.suggestedTotal != null && !accumulatorState.isFixed
+        )
     }
 }
