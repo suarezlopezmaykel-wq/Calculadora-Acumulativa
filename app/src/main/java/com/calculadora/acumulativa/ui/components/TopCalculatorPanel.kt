@@ -1,6 +1,7 @@
 package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -83,15 +84,39 @@ fun TopCalculatorPanel(
                 fontWeight = FontWeight.Bold
             )
 
-            // Glassmorphic Red Exit Button
-            CalcButton(
-                text = "✕",
-                onClick = onExitClick,
-                style = GlassButtonStyle.EXIT,
-                fontSize = 15.sp,
-                height = 32.dp,
-                modifier = Modifier.width(48.dp).padding(0.dp)
-            )
+            // Compact Glassmorphic Red Exit Button (restored original size)
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0x90DC2626),
+                                Color(0x60991B1B)
+                            )
+                        )
+                    )
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFFF87171),
+                                Color(0x40F87171)
+                            )
+                        ),
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                    .clickable { onExitClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "✕",
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         // Compact accumulator readout integrated into the upper calculator card.
