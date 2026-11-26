@@ -110,6 +110,7 @@ fun TopCalculatorPanel(
                 fontSize = 13.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
