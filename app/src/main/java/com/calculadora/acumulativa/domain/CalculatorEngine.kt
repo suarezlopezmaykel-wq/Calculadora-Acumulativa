@@ -79,6 +79,9 @@ object CalculatorEngine {
      * Returns null if evaluation fails or division by zero occurs.
      */
     fun evaluate(expression: String): Double? {
+        // Reject unsupported characters instead of silently dropping them (e.g. "2x3" -> "23").
+        if (expression.any { !it.isWhitespace() && !it.isDigit() && it != '.' && !isOperator(it) }) return null
+
         val tokens = tokenize(expression)
         if (tokens.isEmpty()) return null
 
@@ -119,6 +122,7 @@ object CalculatorEngine {
                     if (right == 0.0) return null // Division by zero
                     left / right
                 }
+                if (!res.isFinite()) return null
                 numbers[i] = res
                 numbers.removeAt(i + 1)
                 operators.removeAt(i)
@@ -132,14 +136,14 @@ object CalculatorEngine {
         for (j in operators.indices) {
             val op = operators[j]
             val next = numbers[j + 1]
-            if (op == '+' || op == '+') {
+            if (op == '+') {
                 result += next
             } else if (op == '−' || op == '-') {
                 result -= next
             }
         }
 
-        return result
+        return result.takeIf { it.isFinite() }
     }
 
     fun evaluateFormatted(expression: String): String? {
