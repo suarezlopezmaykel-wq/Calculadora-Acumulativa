@@ -307,4 +307,19 @@ class CalculatorEngineTest {
         assertEquals(3298.0, CalculatorEngine.evaluate("1572 + 1726")!!, 0.0)
     }
 
+    @Test
+    fun largeRepeatedNinesRemainExactWithoutRoundingToNextPowerOfTen() {
+        val entered = "9".repeat(21)
+        assertEquals(entered, CalculatorEngine.evaluateFormatted(entered))
+        assertEquals("99999999999999999999", CalculatorEngine.evaluateFormatted("".plus("9".repeat(20))))
+        assertEquals("100000000000000000000", CalculatorEngine.evaluateFormatted("${"9".repeat(20)} + 1"))
+    }
+
+    @Test
+    fun decimalArithmeticUsesExactDecimalValues() {
+        assertEquals("0.3", CalculatorEngine.evaluateFormatted("0.1 + 0.2"))
+        assertEquals("0.3", CalculatorEngine.evaluateFormatted("0.1 × 3"))
+        assertEquals("0.3333333333", CalculatorEngine.evaluateFormatted("1 ÷ 3"))
+    }
+
 }
