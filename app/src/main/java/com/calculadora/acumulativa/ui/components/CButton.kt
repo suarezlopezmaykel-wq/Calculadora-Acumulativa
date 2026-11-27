@@ -62,7 +62,7 @@ fun CButton(
         Text(
             text = "C",
             color = Color(0xFFCE93D8),
-            fontSize = 20.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold
         )
     }
