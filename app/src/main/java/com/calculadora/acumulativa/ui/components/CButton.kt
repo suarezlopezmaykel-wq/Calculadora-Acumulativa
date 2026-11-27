@@ -38,7 +38,7 @@ fun CButton(
 
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(42.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFF666666))
             .pointerInput(Unit) {
