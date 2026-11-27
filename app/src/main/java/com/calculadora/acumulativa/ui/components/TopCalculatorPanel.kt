@@ -193,7 +193,7 @@ fun TopCalculatorPanel(
         ) {
             CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
             CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
             CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
