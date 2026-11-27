@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 fun CButton(
     modifier: Modifier = Modifier,
     onShortClick: () -> Unit,
-    onLongPress2Sec: () -> Unit
+    onLongPress1Sec: () -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
@@ -48,9 +48,9 @@ fun CButton(
                         longPressTriggered = false
 
                         timerJob = coroutineScope.launch {
-                            delay(2000L)
+                            delay(1000L)
                             longPressTriggered = true
-                            onLongPress2Sec()
+                            onLongPress1Sec()
                         }
 
                         tryAwaitRelease()
