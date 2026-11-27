@@ -169,8 +169,7 @@ fun TopCalculatorPanel(
                     modifier = Modifier.weight(1f),
                     onShortClick = onShortDeleteClick,
                     onLongPress1Sec = onResetAllClick,
-                    height = keyHeight,
-                    fontSize = 28.sp
+                    height = keyHeight
                 )
             }
 
