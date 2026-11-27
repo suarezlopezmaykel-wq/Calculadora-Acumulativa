@@ -64,7 +64,7 @@ fun TopCalculatorPanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(36.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
