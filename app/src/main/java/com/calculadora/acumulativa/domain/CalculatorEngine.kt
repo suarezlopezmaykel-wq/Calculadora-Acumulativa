@@ -1,15 +1,22 @@
 package com.calculadora.acumulativa.domain
 
 import java.math.BigDecimal
+import java.math.MathContext
 import java.math.RoundingMode
 
 object CalculatorEngine {
 
+    private val divisionContext = MathContext.DECIMAL128
+
+    // Kept for compatibility with existing callers and tests.
     fun formatNumber(value: Double): String {
         if (value.isNaN() || value.isInfinite()) return "Error"
-        val bd = BigDecimal.valueOf(value).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
-        val plain = bd.toPlainString()
-        return if (plain == "-0") "0" else plain
+        return formatDecimal(BigDecimal.valueOf(value))
+    }
+
+    private fun formatDecimal(value: BigDecimal): String {
+        val normalized = value.stripTrailingZeros()
+        return if (normalized.compareTo(BigDecimal.ZERO) == 0) "0" else normalized.toPlainString()
     }
 
     /**
@@ -84,23 +91,23 @@ object CalculatorEngine {
         token.length == 1 && isOperator(token[0])
 
     /**
-     * Evaluates a tokenized expression respecting operator precedence.
-     * Returns null if evaluation fails or division by zero occurs.
+     * Exact decimal evaluator. Addition, subtraction and multiplication retain all
+     * entered digits; division uses DECIMAL128 precision for repeating decimals.
      */
-    fun evaluate(expression: String): Double? {
+    fun evaluateDecimal(expression: String): BigDecimal? {
         if (expression.any { !it.isWhitespace() && !it.isDigit() && it != '.' && !isOperator(it) }) return null
 
         val tokens = tokenize(expression)
         if (tokens.isEmpty() || isOperatorToken(tokens.last())) return null
 
-        val numbers = mutableListOf<Double>()
+        val numbers = mutableListOf<BigDecimal>()
         val operators = mutableListOf<Char>()
 
         for (token in tokens) {
             if (isOperatorToken(token)) {
                 operators.add(token[0])
             } else {
-                numbers.add(token.toDoubleOrNull() ?: return null)
+                numbers.add(token.toBigDecimalOrNull() ?: return null)
             }
         }
 
@@ -112,12 +119,13 @@ object CalculatorEngine {
             if (op == '×' || op == '÷') {
                 val left = numbers[i]
                 val right = numbers[i + 1]
-                val res = if (op == '×') left * right else {
-                    if (right == 0.0) return null
-                    left / right
+                if (op == '÷' && right.compareTo(BigDecimal.ZERO) == 0) return null
+                val result = try {
+                    if (op == '×') left.multiply(right) else left.divide(right, divisionContext)
+                } catch (_: ArithmeticException) {
+                    return null
                 }
-                if (!res.isFinite()) return null
-                numbers[i] = res
+                numbers[i] = result
                 numbers.removeAt(i + 1)
                 operators.removeAt(i)
             } else {
@@ -128,13 +136,21 @@ object CalculatorEngine {
         var result = numbers[0]
         for (j in operators.indices) {
             val next = numbers[j + 1]
-            result = if (operators[j] == '+') result + next else result - next
+            result = if (operators[j] == '+') result.add(next) else result.subtract(next)
         }
-        return result.takeIf { it.isFinite() }
+        return result
+    }
+
+    // Legacy Double API retained for compatibility; display and app calculations
+    // use evaluateDecimal/evaluateFormatted to avoid precision loss.
+    fun evaluate(expression: String): Double? {
+        val result = evaluateDecimal(expression) ?: return null
+        val asDouble = result.toDouble()
+        return asDouble.takeIf { it.isFinite() }
     }
 
     fun evaluateFormatted(expression: String): String? {
-        val valResult = evaluate(expression) ?: return null
-        return formatNumber(valResult)
+        val result = evaluateDecimal(expression) ?: return null
+        return formatDecimal(result)
     }
 }
