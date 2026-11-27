@@ -277,4 +277,32 @@ class CalculatorEngineTest {
         val largeFiniteNumber = "1" + "0".repeat(155)
         assertNull(CalculatorEngine.evaluate("$largeFiniteNumber × $largeFiniteNumber"))
     }
+
+    @Test
+    fun equalsReplacesExpressionAndAllowsContinuationFromResult() {
+        viewModel.onTopDigitClick("1572")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("1726")
+
+        assertEquals("3298", viewModel.topState.value.suggestedResult)
+        viewModel.onTopEqualsClick()
+        assertEquals("3298", viewModel.topState.value.expression)
+        assertTrue(viewModel.topState.value.isFixed)
+
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("2")
+        assertEquals("3300", viewModel.topState.value.suggestedResult)
+    }
+
+    @Test
+    fun thousandsSeparatorsAreDisplayOnlyAndPreserveDecimals() {
+        assertEquals("1,572", CalculatorEngine.formatExpressionForDisplay("1572"))
+        assertEquals("1,572 + 1,726", CalculatorEngine.formatExpressionForDisplay("1572 + 1726"))
+        assertEquals("1,234.56", CalculatorEngine.formatExpressionForDisplay("1234.56"))
+        assertEquals("1,234,567", CalculatorEngine.formatExpressionForDisplay("1234567"))
+
+        // Formatting is display-only: the arithmetic parser still receives plain digits.
+        assertEquals(3298.0, CalculatorEngine.evaluate("1572 + 1726")!!, 0.0)
+    }
+
 }
