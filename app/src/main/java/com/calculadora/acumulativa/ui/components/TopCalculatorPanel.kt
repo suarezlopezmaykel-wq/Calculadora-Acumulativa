@@ -53,7 +53,7 @@ fun TopCalculatorPanel(
     ) {
         // Let the keypad grow with the usable phone height, while keeping
         // each key large enough to tap comfortably on compact devices.
-        val keyHeight = ((maxHeight - 205.dp) / 5f).coerceIn(56.dp, 104.dp)
+        val keyHeight = ((maxHeight - 240.dp) / 5f).coerceIn(52.dp, 100.dp)
 
         Column(
             modifier = Modifier
