@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 enum class GlassButtonStyle {
-    NUMBER, OPERATOR_BLUE, OPERATOR_GREEN, EQUALS_BLUE, EQUALS_GREEN, SAVE, EXIT
+    NUMBER, OPERATOR_BLUE, SAVE
 }
 
 @Composable
@@ -26,16 +26,14 @@ fun CalcButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: GlassButtonStyle = GlassButtonStyle.NUMBER,
-    backgroundColor: Color? = null,
-    borderColor: Color? = null,
-    fontSize: TextUnit = 20.sp,
+    fontSize: TextUnit = 28.sp,
     height: Dp = 42.dp,
     enabled: Boolean = true
 ) {
     val textColor = when (style) {
         GlassButtonStyle.NUMBER -> Color(0xFF39FF14)
-        GlassButtonStyle.OPERATOR_BLUE, GlassButtonStyle.OPERATOR_GREEN, GlassButtonStyle.EQUALS_BLUE, GlassButtonStyle.EQUALS_GREEN -> Color(0xFF80D8FF)
-        else -> Color(0xFFCE93D8)
+        GlassButtonStyle.OPERATOR_BLUE -> Color(0xFF80D8FF)
+        GlassButtonStyle.SAVE -> Color(0xFFCE93D8)
     }
     Box(
         modifier = modifier

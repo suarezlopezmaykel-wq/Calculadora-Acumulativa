@@ -23,7 +23,6 @@ data class TopCalculatorState(
 
     fun appendDot(): TopCalculatorState {
         val baseExpr = if (isFixed) "" else expression
-        // Check if last token already has a dot
         val tokens = CalculatorEngine.tokenize(baseExpr)
         val lastToken = tokens.lastOrNull() ?: ""
         if (lastToken.contains('.')) return this.copy(isFixed = false)
@@ -50,7 +49,6 @@ data class TopCalculatorState(
         val lastChar = trimmed.lastOrNull()
 
         val newExpr = if (lastChar != null && CalculatorEngine.isOperator(lastChar)) {
-            // Replace last operator
             trimmed.dropLast(1).trimEnd() + " " + op + " "
         } else {
             "$trimmed $op "
@@ -59,14 +57,10 @@ data class TopCalculatorState(
     }
 
     fun deleteLast(): TopCalculatorState {
-        if (isFixed) {
-            // Reset fixed state
-            return TopCalculatorState(expression = expression, isFixed = false)
-        }
+        if (isFixed) return TopCalculatorState(expression = expression, isFixed = false)
         if (expression.isEmpty()) return this
         val trimmed = expression.trimEnd()
         if (trimmed.isEmpty()) return copy(expression = "")
-        // Drop last character
         val newExpr = trimmed.dropLast(1).trimEnd()
         return copy(expression = newExpr, isFixed = false)
     }
@@ -74,10 +68,9 @@ data class TopCalculatorState(
     fun fixResult(): TopCalculatorState {
         val res = CalculatorEngine.evaluateFormatted(expression) ?: return this
         if (res == "Error") return this
-        return copy(fixedResult = res, isFixed = true)
+        // Replace the operation with its result; keep the raw value for further calculations/saving.
+        return copy(expression = res, fixedResult = res, isFixed = true)
     }
 
-    fun clear(): TopCalculatorState {
-        return TopCalculatorState()
-    }
+    fun clear(): TopCalculatorState = TopCalculatorState()
 }

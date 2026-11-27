@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Job
@@ -28,40 +29,31 @@ import kotlinx.coroutines.launch
 fun CButton(
     modifier: Modifier = Modifier,
     onShortClick: () -> Unit,
-    onLongPress1Sec: () -> Unit
+    onLongPress1Sec: () -> Unit,
+    height: Dp = 42.dp
 ) {
-    var isPressed by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
     var timerJob by remember { mutableStateOf<Job?>(null) }
 
     Box(
         modifier = modifier
-            .height(42.dp)
+            .height(height)
             .clip(RoundedCornerShape(8.dp))
             .background(Color(0xFF666666))
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
-                        isPressed = true
                         longPressTriggered = false
-
                         timerJob = coroutineScope.launch {
                             delay(1000L)
                             longPressTriggered = true
                             onLongPress1Sec()
                         }
-
                         tryAwaitRelease()
-
                         timerJob?.cancel()
                         timerJob = null
-                        isPressed = false
-
-                        if (!longPressTriggered) {
-                            onShortClick()
-                        }
+                        if (!longPressTriggered) onShortClick()
                     }
                 )
             },
@@ -70,7 +62,7 @@ fun CButton(
         Text(
             text = "C",
             color = Color(0xFFCE93D8),
-            fontSize = 20.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold
         )
     }
