@@ -300,6 +300,8 @@ class CalculatorEngineTest {
         assertEquals("1,572 + 1,726", CalculatorEngine.formatExpressionForDisplay("1572 + 1726"))
         assertEquals("1,234.56", CalculatorEngine.formatExpressionForDisplay("1234.56"))
         assertEquals("1,234,567", CalculatorEngine.formatExpressionForDisplay("1234567"))
+        assertEquals("-1,234,567", CalculatorEngine.formatExpressionForDisplay("-1234567"))
+        assertEquals("0.125", CalculatorEngine.formatExpressionForDisplay("0.125"))
 
         // Formatting is display-only: the arithmetic parser still receives plain digits.
         assertEquals(3298.0, CalculatorEngine.evaluate("1572 + 1726")!!, 0.0)
