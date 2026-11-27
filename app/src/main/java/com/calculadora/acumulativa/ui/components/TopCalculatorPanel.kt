@@ -171,7 +171,7 @@ fun TopCalculatorPanel(
             CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 3: 7, 8, 9, −
         Row(
@@ -184,7 +184,7 @@ fun TopCalculatorPanel(
             CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 4: ÷, 0, ., +
         Row(
@@ -197,7 +197,7 @@ fun TopCalculatorPanel(
             CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 5: Equals = (under result) & Guardar cálculo
         Row(
@@ -212,7 +212,7 @@ fun TopCalculatorPanel(
                 text = "=",
                 onClick = onEqualsClick,
                 modifier = Modifier.weight(1.2f),
-                style = GlassButtonStyle.EQUALS_BLUE,
+                style = GlassButtonStyle.OPERATOR_BLUE,
                 enabled = canFix
             )
 
@@ -225,7 +225,7 @@ fun TopCalculatorPanel(
                 },
                 modifier = Modifier.weight(2.8f),
                 style = GlassButtonStyle.SAVE,
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 enabled = canSave
             )
         }
