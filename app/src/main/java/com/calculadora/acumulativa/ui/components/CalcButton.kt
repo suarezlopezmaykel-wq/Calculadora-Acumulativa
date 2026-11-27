@@ -34,7 +34,7 @@ fun CalcButton(
 ) {
     val textColor = when (style) {
         GlassButtonStyle.NUMBER -> Color(0xFF39FF14)
-        GlassButtonStyle.OPERATOR_BLUE, GlassButtonStyle.OPERATOR_GREEN -> Color(0xFF80D8FF)
+        GlassButtonStyle.OPERATOR_BLUE, GlassButtonStyle.OPERATOR_GREEN, GlassButtonStyle.EQUALS_BLUE, GlassButtonStyle.EQUALS_GREEN -> Color(0xFF80D8FF)
         else -> Color(0xFFCE93D8)
     }
     Box(
