@@ -2,9 +2,6 @@ package com.calculadora.acumulativa.domain
 
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.Locale
 
 object CalculatorEngine {
 
@@ -14,6 +11,22 @@ object CalculatorEngine {
         val plain = bd.toPlainString()
         return if (plain == "-0") "0" else plain
     }
+
+    /**
+     * Adds thousands separators for display only. The underlying expression remains
+     * unformatted so evaluation and saved calculations continue to use plain numbers.
+     */
+    fun formatExpressionForDisplay(expression: String): String {
+        val numberPattern = Regex("(?<![\\d.])\\d+(?:\\.\\d*)?")
+        return numberPattern.replace(expression) { match ->
+            val number = match.value
+            val parts = number.split('.', limit = 2)
+            val groupedInteger = parts[0].reversed().chunked(3).joinToString(",").reversed()
+            if (parts.size == 2) "$groupedInteger.${parts[1]}" else groupedInteger
+        }
+    }
+
+    fun formatNumberForDisplay(number: String): String = formatExpressionForDisplay(number)
 
     fun isOperator(char: Char): Boolean {
         return char == '+' || char == '−' || char == '-' || char == '×' || char == '*' || char == '÷' || char == '/'
@@ -46,7 +59,6 @@ object CalculatorEngine {
             }
 
             if (isOperator(c)) {
-                // Check if this minus sign is part of a negative number token
                 val isMinus = (c == '-' || c == '−')
                 val isUnary = isMinus && (tokens.isEmpty() || isOperatorToken(tokens.last())) && sb.isEmpty()
 
@@ -64,62 +76,44 @@ object CalculatorEngine {
             }
             i++
         }
-        if (sb.isNotEmpty()) {
-            tokens.add(sb.toString())
-        }
+        if (sb.isNotEmpty()) tokens.add(sb.toString())
         return tokens
     }
 
-    private fun isOperatorToken(token: String): Boolean {
-        return token.length == 1 && isOperator(token[0])
-    }
+    private fun isOperatorToken(token: String): Boolean =
+        token.length == 1 && isOperator(token[0])
 
     /**
-     * Evaluates a tokenized expression respecting operator precedence (× and ÷ before + and −).
+     * Evaluates a tokenized expression respecting operator precedence.
      * Returns null if evaluation fails or division by zero occurs.
      */
     fun evaluate(expression: String): Double? {
-        // Reject unsupported characters instead of silently dropping them (e.g. "2x3" -> "23").
         if (expression.any { !it.isWhitespace() && !it.isDigit() && it != '.' && !isOperator(it) }) return null
 
         val tokens = tokenize(expression)
-        if (tokens.isEmpty()) return null
+        if (tokens.isEmpty() || isOperatorToken(tokens.last())) return null
 
-        // If expression ends with an operator, it is incomplete
-        if (isOperatorToken(tokens.last())) {
-            return null
-        }
-
-        // Parse numbers and operators
         val numbers = mutableListOf<Double>()
         val operators = mutableListOf<Char>()
 
-        var idx = 0
-        while (idx < tokens.size) {
-            val token = tokens[idx]
+        for (token in tokens) {
             if (isOperatorToken(token)) {
-                // Expect operator
                 operators.add(token[0])
             } else {
-                val num = token.toDoubleOrNull() ?: return null
-                numbers.add(num)
+                numbers.add(token.toDoubleOrNull() ?: return null)
             }
-            idx++
         }
 
         if (numbers.size != operators.size + 1) return null
 
-        // First pass: multiply and divide
         var i = 0
         while (i < operators.size) {
             val op = operators[i]
             if (op == '×' || op == '÷') {
                 val left = numbers[i]
                 val right = numbers[i + 1]
-                val res = if (op == '×') {
-                    left * right
-                } else {
-                    if (right == 0.0) return null // Division by zero
+                val res = if (op == '×') left * right else {
+                    if (right == 0.0) return null
                     left / right
                 }
                 if (!res.isFinite()) return null
@@ -131,18 +125,11 @@ object CalculatorEngine {
             }
         }
 
-        // Second pass: add and subtract
         var result = numbers[0]
         for (j in operators.indices) {
-            val op = operators[j]
             val next = numbers[j + 1]
-            if (op == '+') {
-                result += next
-            } else if (op == '−' || op == '-') {
-                result -= next
-            }
+            result = if (operators[j] == '+') result + next else result - next
         }
-
         return result.takeIf { it.isFinite() }
     }
 
