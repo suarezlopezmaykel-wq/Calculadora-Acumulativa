@@ -47,8 +47,6 @@ fun CalculatorScreen(
                 onShortDeleteClick = { viewModel.onTopShortDeleteClick() },
                 onResetAllClick = { viewModel.onResetAll() },
                 onSaveResultClick = { viewModel.onSaveTopResultToBottom(it) },
-                onAccumulatorOperatorClick = { viewModel.onBottomOperatorClick(it) },
-                onAccumulatorEqualsClick = { viewModel.onBottomEqualsClick() },
                 onExitClick = { viewModel.onRedExitClick(onExitApp) },
                 modifier = Modifier.fillMaxSize()
             )
