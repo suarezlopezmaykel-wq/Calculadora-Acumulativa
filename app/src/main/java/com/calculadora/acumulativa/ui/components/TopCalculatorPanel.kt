@@ -45,29 +45,13 @@ fun TopCalculatorPanel(
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Glassmorphic Blue Theme Colors
-    val panelBgGradient = listOf(
-        Color(0x351E3A5F), // Translucent deep ice blue
-        Color(0x200F172A)
-    )
-    val panelBorder = Color(0x7060A5FA) // Luminous light blue glow border
-
-    val displayBg = Color(0x400F172A)    // Deep dark display glass
-    val displayBorder = Color(0x6038BDF8)
+    // Flat black calculator surface.
+    val panelBg = Color.Black
 
     Column(
         modifier = modifier
-            .shadow(12.dp, RoundedCornerShape(16.dp), spotColor = Color(0x603B82F6))
-            .clip(RoundedCornerShape(16.dp))
-            .background(Brush.verticalGradient(panelBgGradient))
-            .border(
-                width = 1.5.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(panelBorder, panelBorder.copy(alpha = 0.2f))
-                ),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(12.dp)
+            .background(panelBg)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         // Top Header Row with Panel Label & Red Exit Button
         Row(
@@ -77,103 +61,33 @@ fun TopCalculatorPanel(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Calculadora Individual",
-                color = Color(0xFFE0F2FE),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            // Compact Glassmorphic Red Exit Button (restored original size)
+            Spacer(modifier = Modifier.weight(1f))
+            // Grey exit key with red cross.
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(28.dp)
                     .clip(RoundedCornerShape(6.dp))
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0x90DC2626),
-                                Color(0x60991B1B)
-                            )
-                        )
-                    )
-                    .border(
-                        width = 1.dp,
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFFF87171),
-                                Color(0x40F87171)
-                            )
-                        ),
-                        shape = RoundedCornerShape(6.dp)
-                    )
+                    .background(Color(0xFF666666))
                     .clickable { onExitClick() },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "✕",
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(text = "❌", color = Color.Red, fontSize = 13.sp)
             }
-        }
-
-        // Compact accumulator readout integrated into the upper calculator card.
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color(0x26065F46))
-                .border(1.dp, Color(0x6034D399), RoundedCornerShape(10.dp))
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-        ) {
-            Text(
-                text = "Guardado: ${accumulatorState.expression.ifBlank { "0" }}",
-                color = Color(0xFFA7F3D0),
-                fontSize = 13.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = when {
-                    accumulatorState.isFixed -> "Total: ${accumulatorState.fixedTotal}"
-                    accumulatorState.suggestedTotal != null -> "Total: ${accumulatorState.suggestedTotal}"
-                    else -> "Total: 0"
-                },
-                color = Color(0xFF6EE7B7),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         // Main calculator display.
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(4.dp, RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
-                .background(displayBg)
-                .border(
-                    width = 1.dp,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(displayBorder, displayBorder.copy(alpha = 0.2f))
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp),
+                .background(Color.Black)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
             horizontalAlignment = Alignment.End
         ) {
             // Expression Line
             Text(
                 text = if (state.expression.isBlank()) "0" else state.expression,
-                color = Color(0xFFCBD5E1),
-                fontSize = 20.sp,
+                color = Color.White,
+                fontSize = 17.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.End,
@@ -183,16 +97,12 @@ fun TopCalculatorPanel(
             Spacer(modifier = Modifier.height(4.dp))
 
             // Result Line
-            val resultDisplay = when {
-                state.isFixed -> "= ${state.fixedResult} (Fijado)"
-                state.suggestedResult != null -> "= ${state.suggestedResult}"
-                else -> ""
-            }
+            val resultDisplay = state.fixedResult ?: state.suggestedResult ?: ""
 
             Text(
                 text = resultDisplay,
-                color = if (state.isFixed) Color(0xFF60A5FA) else Color(0xFF38BDF8),
-                fontSize = 24.sp,
+                color = Color.White,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -201,9 +111,38 @@ fun TopCalculatorPanel(
             )
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        // Saved calculations and their automatically computed total, in yellow.
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = accumulatorState.expression.ifBlank { "0" },
+                color = Color(0xFFFFFF00),
+                fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = accumulatorState.fixedTotal ?: accumulatorState.suggestedTotal ?: "0",
+                color = Color(0xFFFFFF00),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
-        // Perfect 4-Column Uniform Keypad Grid (Numbers 1-9, 0 & Swapped C & ÷)
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Compact 4-column keypad. Uniform Keypad Grid (Numbers 1-9, 0 & Swapped C & ÷)
         // Row 1: 1, 2, 3, C
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -215,11 +154,11 @@ fun TopCalculatorPanel(
             CButton(
                 modifier = Modifier.weight(1f),
                 onShortClick = onShortDeleteClick,
-                onLongPress2Sec = onResetAllClick
+                onLongPress1Sec = onResetAllClick
             )
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 2: 4, 5, 6, ×
         Row(
@@ -232,7 +171,7 @@ fun TopCalculatorPanel(
             CalcButton("×", { onOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 3: 7, 8, 9, −
         Row(
@@ -245,7 +184,7 @@ fun TopCalculatorPanel(
             CalcButton("−", { onOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 4: ÷, 0, ., +
         Row(
@@ -254,11 +193,11 @@ fun TopCalculatorPanel(
         ) {
             CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
             CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
-            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.NUMBER)
+            CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
             CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE)
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         // Row 5: Equals = (under result) & Guardar cálculo
         Row(
@@ -273,12 +212,12 @@ fun TopCalculatorPanel(
                 text = "=",
                 onClick = onEqualsClick,
                 modifier = Modifier.weight(1.2f),
-                style = GlassButtonStyle.EQUALS_BLUE,
+                style = GlassButtonStyle.OPERATOR_BLUE,
                 enabled = canFix
             )
 
             CalcButton(
-                text = "Guardar cálculo",
+                text = "↓",
                 onClick = {
                     if (canSave && targetSaveVal.isNotBlank() && targetSaveVal != "Error") {
                         onSaveResultClick(targetSaveVal)
@@ -286,33 +225,10 @@ fun TopCalculatorPanel(
                 },
                 modifier = Modifier.weight(2.8f),
                 style = GlassButtonStyle.SAVE,
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 enabled = canSave
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Accumulator operators stay available, without a separate lower screen.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            CalcButton("+", { onAccumulatorOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
-            CalcButton("−", { onAccumulatorOperatorClick("−") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
-            CalcButton("×", { onAccumulatorOperatorClick("×") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
-            CalcButton("÷", { onAccumulatorOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_GREEN, height = 42.dp)
-        }
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        CalcButton(
-            text = "Fijar total =",
-            onClick = onAccumulatorEqualsClick,
-            modifier = Modifier.fillMaxWidth(),
-            style = GlassButtonStyle.EQUALS_GREEN,
-            height = 42.dp,
-            enabled = accumulatorState.suggestedTotal != null && !accumulatorState.isFixed
-        )
     }
 }
