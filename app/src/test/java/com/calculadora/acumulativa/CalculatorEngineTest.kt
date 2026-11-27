@@ -307,4 +307,27 @@ class CalculatorEngineTest {
         assertEquals(3298.0, CalculatorEngine.evaluate("1572 + 1726")!!, 0.0)
     }
 
+
+    @Test
+    fun longRepeatedNinesKeepEveryDigitWithoutRoundingUp() {
+        val input = "9".repeat(30)
+        assertEquals(input, CalculatorEngine.evaluateFormatted(input))
+        assertEquals("999999999999999999999999999999 + 1",
+            CalculatorEngine.formatExpressionForDisplay(input + " + 1"))
+        assertEquals("1000000000000000000000000000000",
+            CalculatorEngine.evaluateFormatted(input + " + 1"))
+    }
+
+    @Test
+    fun largeIntegerArithmeticKeepsExactDigits() {
+        assertEquals("1999999999999999999999999999998",
+            CalculatorEngine.evaluateFormatted("999999999999999999999999999999 × 2"))
+    }
+
+    @Test
+    fun decimalDivisionUsesStablePrecision() {
+        assertEquals("0.3333333333333333333333333333333333",
+            CalculatorEngine.evaluateFormatted("1 ÷ 3"))
+    }
+
 }
