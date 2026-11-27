@@ -28,7 +28,7 @@ fun CalcButton(
     style: GlassButtonStyle = GlassButtonStyle.NUMBER,
     backgroundColor: Color? = null,
     borderColor: Color? = null,
-    fontSize: TextUnit = 20.sp,
+    fontSize: TextUnit = 28.sp,
     height: Dp = 42.dp,
     enabled: Boolean = true
 ) {
