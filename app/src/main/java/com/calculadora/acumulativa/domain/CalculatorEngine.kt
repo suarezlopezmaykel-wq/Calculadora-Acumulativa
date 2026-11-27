@@ -7,8 +7,11 @@ object CalculatorEngine {
 
     fun formatNumber(value: Double): String {
         if (value.isNaN() || value.isInfinite()) return "Error"
-        val bd = BigDecimal.valueOf(value).setScale(10, RoundingMode.HALF_UP).stripTrailingZeros()
-        val plain = bd.toPlainString()
+        return formatDecimal(BigDecimal.valueOf(value))
+    }
+
+    private fun formatDecimal(value: BigDecimal): String {
+        val plain = value.stripTrailingZeros().toPlainString()
         return if (plain == "-0") "0" else plain
     }
 
@@ -84,23 +87,25 @@ object CalculatorEngine {
         token.length == 1 && isOperator(token[0])
 
     /**
-     * Evaluates a tokenized expression respecting operator precedence.
-     * Returns null if evaluation fails or division by zero occurs.
+     * Exact decimal evaluation for integer and decimal arithmetic.
+     * Division is rounded to 10 decimal places (HALF_UP), matching the calculator's
+     * established displayed precision while avoiding binary floating-point loss.
      */
-    fun evaluate(expression: String): Double? {
+    fun evaluateDecimal(expression: String): BigDecimal? {
         if (expression.any { !it.isWhitespace() && !it.isDigit() && it != '.' && !isOperator(it) }) return null
 
         val tokens = tokenize(expression)
         if (tokens.isEmpty() || isOperatorToken(tokens.last())) return null
 
-        val numbers = mutableListOf<Double>()
+        val numbers = mutableListOf<BigDecimal>()
         val operators = mutableListOf<Char>()
 
         for (token in tokens) {
             if (isOperatorToken(token)) {
                 operators.add(token[0])
             } else {
-                numbers.add(token.toDoubleOrNull() ?: return null)
+                val number = try { BigDecimal(token) } catch (_: NumberFormatException) { return null }
+                numbers.add(number)
             }
         }
 
@@ -112,11 +117,9 @@ object CalculatorEngine {
             if (op == '×' || op == '÷') {
                 val left = numbers[i]
                 val right = numbers[i + 1]
-                val res = if (op == '×') left * right else {
-                    if (right == 0.0) return null
-                    left / right
-                }
-                if (!res.isFinite()) return null
+                if (op == '÷' && right.compareTo(BigDecimal.ZERO) == 0) return null
+                val res = if (op == '×') left.multiply(right)
+                    else left.divide(right, 10, RoundingMode.HALF_UP)
                 numbers[i] = res
                 numbers.removeAt(i + 1)
                 operators.removeAt(i)
@@ -128,13 +131,23 @@ object CalculatorEngine {
         var result = numbers[0]
         for (j in operators.indices) {
             val next = numbers[j + 1]
-            result = if (operators[j] == '+') result + next else result - next
+            result = if (operators[j] == '+') result.add(next) else result.subtract(next)
         }
-        return result.takeIf { it.isFinite() }
+        return result
+    }
+
+    /**
+     * Legacy Double API retained for existing callers/tests. The UI and saved values
+     * use evaluateDecimal/evaluateFormatted so large integers remain exact.
+     */
+    fun evaluate(expression: String): Double? {
+        val result = evaluateDecimal(expression) ?: return null
+        val asDouble = result.toDouble()
+        return asDouble.takeIf { it.isFinite() }
     }
 
     fun evaluateFormatted(expression: String): String? {
-        val valResult = evaluate(expression) ?: return null
-        return formatNumber(valResult)
+        val result = evaluateDecimal(expression) ?: return null
+        return formatDecimal(result)
     }
 }
