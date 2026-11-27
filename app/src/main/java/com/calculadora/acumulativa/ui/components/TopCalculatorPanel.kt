@@ -154,7 +154,7 @@ fun TopCalculatorPanel(
             CButton(
                 modifier = Modifier.weight(1f),
                 onShortClick = onShortDeleteClick,
-                onLongPress2Sec = onResetAllClick
+                onLongPress1Sec = onResetAllClick
             )
         }
 
