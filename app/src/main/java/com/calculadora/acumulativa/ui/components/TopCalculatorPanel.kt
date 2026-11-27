@@ -1,6 +1,7 @@
 package com.calculadora.acumulativa.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,41 +41,41 @@ fun TopCalculatorPanel(
     onShortDeleteClick: () -> Unit,
     onResetAllClick: () -> Unit,
     onSaveResultClick: (String) -> Unit,
-    onAccumulatorOperatorClick: (String) -> Unit,
-    onAccumulatorEqualsClick: () -> Unit,
     onExitClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
+            .clip(RoundedCornerShape(14.dp))
             .background(Color.Black)
+            .border(1.dp, Color(0xFF777777), RoundedCornerShape(14.dp))
     ) {
         // Let the keypad grow with the usable phone height, while keeping
         // each key large enough to tap comfortably on compact devices.
-        val keyHeight = ((maxHeight - 220.dp) / 5f).coerceIn(48.dp, 88.dp)
+        val keyHeight = ((maxHeight - 205.dp) / 5f).coerceIn(56.dp, 104.dp)
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp),
+                    .height(36.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(34.dp)
                         .clip(RoundedCornerShape(6.dp))
                         .background(Color(0xFF666666))
                         .clickable { onExitClick() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "❌", color = Color.Red, fontSize = 13.sp)
+                    Text(text = "❌", color = Color.Red, fontSize = 16.sp)
                 }
             }
 
@@ -89,7 +90,7 @@ fun TopCalculatorPanel(
                         state.expression.ifBlank { "0" }
                     ),
                     color = Color.White,
-                    fontSize = 20.sp,
+                    fontSize = 24.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
@@ -106,7 +107,7 @@ fun TopCalculatorPanel(
                     Text(
                         text = resultDisplay,
                         color = Color.White,
-                        fontSize = 23.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -136,7 +137,7 @@ fun TopCalculatorPanel(
                         accumulatorState.expression.ifBlank { "0" }
                     ),
                     color = Color(0xFFFFFF00),
-                    fontSize = 20.sp,
+                    fontSize = 24.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
@@ -146,7 +147,7 @@ fun TopCalculatorPanel(
                     text = (accumulatorState.fixedTotal ?: accumulatorState.suggestedTotal ?: "0")
                         .let(CalculatorEngine::formatNumberForDisplay),
                     color = Color(0xFFFFFF00),
-                    fontSize = 21.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -155,20 +156,21 @@ fun TopCalculatorPanel(
                 )
             }
 
-            Spacer(modifier = Modifier.height(7.dp))
+            Spacer(modifier = Modifier.height(9.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
+                CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight, fontSize = 28.sp)
                 CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
                 CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
                 CButton(
                     modifier = Modifier.weight(1f),
                     onShortClick = onShortDeleteClick,
                     onLongPress1Sec = onResetAllClick,
-                    height = keyHeight
+                    height = keyHeight,
+                    fontSize = 28.sp
                 )
             }
 
@@ -236,7 +238,7 @@ fun TopCalculatorPanel(
                     },
                     modifier = Modifier.weight(2.8f),
                     style = GlassButtonStyle.SAVE,
-                    fontSize = 20.sp,
+                    fontSize = 28.sp,
                     height = keyHeight,
                     enabled = canSave
                 )
