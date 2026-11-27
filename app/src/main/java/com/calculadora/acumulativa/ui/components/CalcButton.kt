@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 enum class GlassButtonStyle {
-    NUMBER, OPERATOR_BLUE, OPERATOR_GREEN, EQUALS_BLUE, EQUALS_GREEN, SAVE, EXIT
+    NUMBER, OPERATOR_BLUE, SAVE
 }
 
 @Composable
@@ -26,8 +26,6 @@ fun CalcButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     style: GlassButtonStyle = GlassButtonStyle.NUMBER,
-    backgroundColor: Color? = null,
-    borderColor: Color? = null,
     fontSize: TextUnit = 28.sp,
     height: Dp = 42.dp,
     enabled: Boolean = true
