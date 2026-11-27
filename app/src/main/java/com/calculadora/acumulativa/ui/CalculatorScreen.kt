@@ -4,8 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,6 +32,9 @@ fun CalculatorScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                // Keep all controls clear of Android's status and navigation bars.
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             TopCalculatorPanel(
@@ -46,7 +50,7 @@ fun CalculatorScreen(
                 onAccumulatorOperatorClick = { viewModel.onBottomOperatorClick(it) },
                 onAccumulatorEqualsClick = { viewModel.onBottomEqualsClick() },
                 onExitClick = { viewModel.onRedExitClick(onExitApp) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
