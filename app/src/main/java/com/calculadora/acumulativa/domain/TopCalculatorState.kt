@@ -65,6 +65,46 @@ data class TopCalculatorState(
         return copy(expression = newExpr, isFixed = false)
     }
 
+    /**
+     * Applies percentage as division by 100 to the current expression.
+     * Example: 10 × 80 becomes 10 × 80 ÷ 100 (result 8).
+     */
+    fun appendPercent(): TopCalculatorState {
+        val baseExpr = if (isFixed && fixedResult != null && fixedResult != "Error") {
+            fixedResult
+        } else if (isFixed) {
+            ""
+        } else {
+            expression
+        }
+        val trimmed = baseExpr.trimEnd()
+        val lastChar = trimmed.lastOrNull() ?: return this
+        if (CalculatorEngine.isOperator(lastChar)) return this
+        return TopCalculatorState(expression = "$trimmed ÷ 100", isFixed = false)
+    }
+
+    /**
+     * Applies square root to the last entered operand, preserving any earlier
+     * operations. For example, 3 + 9 becomes 3 + 3.
+     */
+    fun applySquareRootToLastOperand(): TopCalculatorState {
+        val baseExpr = if (isFixed && fixedResult != null && fixedResult != "Error") {
+            fixedResult
+        } else if (isFixed) {
+            ""
+        } else {
+            expression
+        }
+        val trimmed = baseExpr.trimEnd()
+        val lastOperand = CalculatorEngine.tokenize(trimmed).lastOrNull() ?: return this
+        if (lastOperand.length == 1 && CalculatorEngine.isOperator(lastOperand[0])) return this
+        val root = CalculatorEngine.squareRootFormatted(lastOperand) ?: return this
+        val operandStart = trimmed.lastIndexOf(lastOperand)
+        if (operandStart < 0) return this
+        val newExpression = trimmed.substring(0, operandStart) + root
+        return TopCalculatorState(expression = newExpression, isFixed = false)
+    }
+
     fun fixResult(): TopCalculatorState {
         val res = CalculatorEngine.evaluateFormatted(expression) ?: return this
         if (res == "Error") return this
