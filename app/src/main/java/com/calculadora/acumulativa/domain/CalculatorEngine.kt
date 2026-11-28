@@ -146,6 +146,32 @@ object CalculatorEngine {
         return asDouble.takeIf { it.isFinite() }
     }
 
+    /**
+     * Square root using decimal Newton iteration (20 significant digits).
+     * Keeps large values out of Double arithmetic and rejects negative inputs.
+     */
+    fun squareRootFormatted(number: String): String? {
+        val value = try {
+            BigDecimal(number)
+        } catch (_: NumberFormatException) {
+            return null
+        }
+        if (value.signum() < 0) return null
+        if (value.signum() == 0) return "0"
+
+        val context = java.math.MathContext(20, RoundingMode.HALF_UP)
+        val two = BigDecimal.valueOf(2L)
+        val decimalExponent = value.precision() - value.scale() - 1
+        var guess = BigDecimal.ONE.scaleByPowerOfTen(Math.floorDiv(decimalExponent, 2))
+
+        repeat(100) {
+            val next = guess.add(value.divide(guess, context)).divide(two, context)
+            if (next.compareTo(guess) == 0) return formatDecimal(next)
+            guess = next
+        }
+        return formatDecimal(guess)
+    }
+
     fun evaluateFormatted(expression: String): String? {
         val result = evaluateDecimal(expression) ?: return null
         return formatDecimal(result)

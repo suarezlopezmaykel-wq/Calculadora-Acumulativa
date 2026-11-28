@@ -25,6 +25,14 @@ class CalculatorViewModel : ViewModel() {
         _topState.update { it.appendDot() }
     }
 
+    fun onTopSquareRootClick() {
+        _topState.update { it.applySquareRootToLastOperand() }
+    }
+
+    fun onTopPercentClick() {
+        _topState.update { it.appendPercent() }
+    }
+
     fun onTopOperatorClick(op: String) {
         _topState.update { it.appendOperator(op) }
     }
@@ -38,7 +46,7 @@ class CalculatorViewModel : ViewModel() {
     }
 
     fun onResetAll() {
-        // Hold C button for 2 seconds clears both screens and resets accumulator
+        // Hold C button for 1 second to clear both screens and reset the accumulator
         _topState.update { TopCalculatorState() }
         _bottomState.update { BottomCalculatorState() }
     }

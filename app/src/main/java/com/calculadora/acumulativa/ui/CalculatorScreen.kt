@@ -43,6 +43,8 @@ fun CalculatorScreen(
                 onDigitClick = { viewModel.onTopDigitClick(it) },
                 onOperatorClick = { viewModel.onTopOperatorClick(it) },
                 onDotClick = { viewModel.onTopDotClick() },
+                onSquareRootClick = { viewModel.onTopSquareRootClick() },
+                onPercentClick = { viewModel.onTopPercentClick() },
                 onEqualsClick = { viewModel.onTopEqualsClick() },
                 onShortDeleteClick = { viewModel.onTopShortDeleteClick() },
                 onResetAllClick = { viewModel.onResetAll() },

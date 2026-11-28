@@ -162,7 +162,7 @@ class CalculatorEngineTest {
         assertEquals("", viewModel.topState.value.expression)
     }
 
-    // Test 10: Pulsación de C durante 2 segundos: borrar ambas pantallas
+    // Test 10: Mantener C durante 1 segundo: borrar ambas pantallas
     @Test
     fun test10_ResetAllOnLongPressC() {
         viewModel.onTopDigitClick("5")
@@ -313,6 +313,37 @@ class CalculatorEngineTest {
         assertEquals(entered, CalculatorEngine.evaluateFormatted(entered))
         assertEquals("99999999999999999999", CalculatorEngine.evaluateFormatted("".plus("9".repeat(20))))
         assertEquals("100000000000000000000", CalculatorEngine.evaluateFormatted("${"9".repeat(20)} + 1"))
+    }
+
+    @Test
+    fun percentageButtonAppendsDivisionBy100ForPercentOfAnAmount() {
+        viewModel.onTopDigitClick("10")
+        viewModel.onTopOperatorClick("×")
+        viewModel.onTopDigitClick("80")
+
+        viewModel.onTopPercentClick()
+
+        assertEquals("10 × 80 ÷ 100", viewModel.topState.value.expression.trim())
+        assertEquals("8", viewModel.topState.value.suggestedResult)
+    }
+
+    @Test
+    fun squareRootButtonTransformsOnlyTheLastOperand() {
+        viewModel.onTopDigitClick("3")
+        viewModel.onTopOperatorClick("+")
+        viewModel.onTopDigitClick("9")
+
+        viewModel.onTopSquareRootClick()
+
+        assertEquals("3 + 3", viewModel.topState.value.expression.trim())
+        assertEquals("6", viewModel.topState.value.suggestedResult)
+    }
+
+    @Test
+    fun squareRootHandlesPerfectAndIrrationalValuesAndRejectsNegatives() {
+        assertEquals("3", CalculatorEngine.squareRootFormatted("9"))
+        assertEquals("1.4142135623730950488", CalculatorEngine.squareRootFormatted("2"))
+        assertNull(CalculatorEngine.squareRootFormatted("-4"))
     }
 
     @Test

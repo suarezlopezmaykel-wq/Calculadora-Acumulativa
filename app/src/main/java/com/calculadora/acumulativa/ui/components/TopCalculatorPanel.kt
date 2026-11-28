@@ -37,6 +37,8 @@ fun TopCalculatorPanel(
     onDigitClick: (String) -> Unit,
     onOperatorClick: (String) -> Unit,
     onDotClick: () -> Unit,
+    onSquareRootClick: () -> Unit,
+    onPercentClick: () -> Unit,
     onEqualsClick: () -> Unit,
     onShortDeleteClick: () -> Unit,
     onResetAllClick: () -> Unit,
@@ -153,7 +155,7 @@ fun TopCalculatorPanel(
                 CalcButton("1", { onDigitClick("1") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
                 CalcButton("2", { onDigitClick("2") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
                 CalcButton("3", { onDigitClick("3") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
-                CButton(modifier = Modifier.weight(1f), onShortClick = onShortDeleteClick, onLongPress1Sec = onResetAllClick, height = keyHeight)
+                CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, height = keyHeight)
             }
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -177,7 +179,7 @@ fun TopCalculatorPanel(
             Spacer(modifier = Modifier.height(4.dp))
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                CalcButton("÷", { onOperatorClick("÷") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, height = keyHeight)
+                CButton(modifier = Modifier.weight(1f), onShortClick = onShortDeleteClick, onLongPress1Sec = onResetAllClick, height = keyHeight)
                 CalcButton("0", { onDigitClick("0") }, Modifier.weight(1f), GlassButtonStyle.NUMBER, height = keyHeight)
                 CalcButton(".", { onDotClick() }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, height = keyHeight)
                 CalcButton("+", { onOperatorClick("+") }, Modifier.weight(1f), GlassButtonStyle.OPERATOR_BLUE, height = keyHeight)
@@ -190,13 +192,21 @@ fun TopCalculatorPanel(
                 val canSave = state.isFixed || state.suggestedResult != null
                 val targetSaveVal = state.fixedResult ?: state.suggestedResult ?: ""
 
-                CalcButton(text = "=", onClick = onEqualsClick, modifier = Modifier.weight(1.2f),
-                    style = GlassButtonStyle.OPERATOR_BLUE, height = keyHeight, enabled = canFix)
+                val canApplyUnary = state.isFixed || state.suggestedResult != null
 
                 CalcButton(text = "↓", onClick = {
                     if (canSave && targetSaveVal.isNotBlank() && targetSaveVal != "Error") onSaveResultClick(targetSaveVal)
-                }, modifier = Modifier.weight(2.8f), style = GlassButtonStyle.SAVE,
+                }, modifier = Modifier.weight(1f), style = GlassButtonStyle.SAVE,
                     fontSize = 28.sp, height = keyHeight, enabled = canSave)
+
+                CalcButton(text = "√", onClick = onSquareRootClick, modifier = Modifier.weight(1f),
+                    style = GlassButtonStyle.OPERATOR_BLUE, height = keyHeight, enabled = canApplyUnary)
+
+                CalcButton(text = "%", onClick = onPercentClick, modifier = Modifier.weight(1f),
+                    style = GlassButtonStyle.OPERATOR_BLUE, height = keyHeight, enabled = canApplyUnary)
+
+                CalcButton(text = "=", onClick = onEqualsClick, modifier = Modifier.weight(1f),
+                    style = GlassButtonStyle.OPERATOR_BLUE, height = keyHeight, enabled = canFix)
             }
         }
     }
